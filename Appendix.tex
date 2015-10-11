@@ -1,0 +1,198 @@
+%!TEX root = Paper.tex
+
+\clearpage
+\onecolumn
+\appendix
+
+\section{Proofs of Main Theorems}
+\label{sec:proofs}
+
+
+\subsection{Proof of \cref{thm:ucb1}}
+\label{sec:proof ucb1}
+
+Let $\rnd{R}_t = R(\rnd{A}_t, \rnd{w}_t)$ be the regret of the learning algorithm at time $t$, where $\rnd{A}_t$ is the recommended list at time $t$ and $\rnd{w}_t$ are the weights of items at time $t$. Let $\cE_t = \set{\exists e \in E \text{ s.t. } \abs{\bar{w}(e) - \hat{\rnd{w}}_{\rnd{T}_{t - 1}(e)}(e)} \geq c_{t - 1, \rnd{T}_{t - 1}(e)}}$ be the event that $\bar{w}(e)$ is not in the high-probability confidence interval around $\hat{\rnd{w}}_{\rnd{T}_{t - 1}(e)}(e)$ for some $e$ at time $t$; and let $\ccE_t$ be the complement of $\cE_t$, $\bar{w}(e)$ is in the high-probability confidence interval around $\hat{\rnd{w}}_{\rnd{T}_{t - 1}(e)}(e)$ for all $e$ at time $t$. Then we can decompose the regret of $\cascadeucb$ as:
+\begin{align}
+  R(n) =
+  \EE{\sum_{t = 1}^n \I{\cE_t} \rnd{R}_t} +
+  \EE{\sum_{t = 1}^n \I{\ccE_t} \rnd{R}_t}\,.
+  \label{eq:good bad ucb1}
+\end{align}
+Now we bound both terms in the above regret decomposition.
+
+The first term in \eqref{eq:good bad ucb1} is small because all of our confidence intervals hold with high probability.
+In particular, Hoeffding's inequality \citep[Theorem 2.8]{boucheron13concentration} yields that for any $e$, $s$, and $t$:
+\begin{align*}
+  P(\abs{\bar{w}(e) - \hat{\rnd{w}}_s(e)} \geq c_{t, s}) \leq 2 \exp[-3 \log t]\,,
+\end{align*}
+and therefore:
+\begin{align*}
+  \EE{\sum_{t = 1}^n \I{\cE_t}} \leq
+  \sum_{e \in E} \sum_{t = 1}^n \sum_{s = 1}^t P(\abs{\bar{w}(e) - \hat{\rnd{w}}_s(e)} \geq c_{t, s}) \leq
+  2 \sum_{e \in E} \sum_{t = 1}^n \sum_{s = 1}^t \exp[-3 \log t] \leq
+  2 \sum_{e \in E} \sum_{t = 1}^n t^{-2} \leq
+  \frac{\pi^2}{3} L\,.
+\end{align*}
+Since $\rnd{R}_t \leq 1$, $\EE{\sum_{t = 1}^n \I{\cE_t} \rnd{R}_t} \leq \frac{\pi^2}{3} L$.
+
+Recall that $\EEt{\cdot} = \condEE{\cdot}{\cH_t}$, where $\cH_t$ is the history of the learning agent up to choosing $\rnd{A}_t$, the first $t - 1$ observations and $t$ actions \eqref{eq:history}. Based on this definition, we rewrite the second term in \eqref{eq:good bad ucb1} as:
+\begin{align*}
+  \EE{\sum_{t = 1}^n \I{\ccE_t} \rnd{R}_t} \stackrel{\text{(a)}}{=}
+  \sum_{t = 1}^n \EE{\I{\ccE_t} \EEt{\rnd{R}_t}} \stackrel{\text{(b)}}{\leq}
+  \sum_{e = K + 1}^L \EE{\sum_{e^\ast = 1}^K \sum_{t = 1}^n \Delta_{e, e^\ast} \I{\ccE_t, G_{e, e^\ast, t}}}\,,
+\end{align*}
+where equality (a) is due to the tower rule and that $\I{\ccE_t}$ is only a function of $\cH_t$, and inequality (b) is due to the upper bound in \cref{thm:regret decomposition}.
+
+Now we bound $\sum_{e^\ast = 1}^K \sum_{t = 1}^n \Delta_{e, e^\ast} \I{\ccE_t, G_{e, e^\ast, t}}$ for any suboptimal item $e$. Select any optimal item $e^\ast$. When event $\ccE_t$ happens, $\abs{\bar{w}(e) - \hat{\rnd{w}}_{\rnd{T}_{t - 1}(e)}(e)} < c_{t - 1, \rnd{T}_{t - 1}(e)}$. Moreover, when event $G_{e, e^\ast, t}$ happens, $\rnd{U}_t(e) \geq \rnd{U}_t(e^\ast)$ by \cref{thm:regret decomposition}. Therefore, when both $G_{e, e^\ast, t}$ and $\ccE_t$ happen:
+\begin{align*}
+  \bar{w}(e) + 2 c_{t - 1, \rnd{T}_{t - 1}(e)} \geq
+  \rnd{U}_t(e) \geq
+  \rnd{U}_t(e^\ast) \geq
+  \bar{w}(e^\ast)\,,
+\end{align*}
+which implies:
+\begin{align*}
+  2 c_{t - 1, \rnd{T}_{t - 1}(e)} \geq \Delta_{e, e^\ast}\,.
+\end{align*}
+Together with $c_{n, \rnd{T}_{t - 1}(e)} \geq c_{t - 1, \rnd{T}_{t - 1}(e)}$, this implies $\rnd{T}_{t - 1}(e) \leq \tau_{e, e^\ast}$, where $\tau_{e, e^\ast} = \frac{6}{\Delta_{e, e^\ast}^2} \log n$. Therefore:
+\begin{align}
+  \sum_{e^\ast = 1}^K \sum_{t = 1}^n \Delta_{e, e^\ast} \I{\ccE_t, G_{e, e^\ast, t}} \leq
+  \sum_{e^\ast = 1}^K \Delta_{e, e^\ast} \sum_{t = 1}^n
+  \I{\rnd{T}_{t - 1}(e) \leq \tau_{e, e^\ast}, \ G_{e, e^\ast, t}}\,.
+  \label{eq:peel me}
+\end{align}
+Let:
+\begin{align*}
+  \rnd{M}_{e, e^\ast} = \sum_{t = 1}^n \I{\rnd{T}_{t - 1}(e) \leq \tau_{e, e^\ast}, \ G_{e, e^\ast, t}}
+\end{align*}
+be the inner sum in \eqref{eq:peel me}. Now note that (i) the counter $\rnd{T}_{t - 1}(e)$ of item $e$ increases by one when the event $G_{e, e^\ast, t}$ happens for any optimal item $e^\ast$, (ii) the event $G_{e, e^\ast, t}$ happens for at most one optimal $e^\ast$ at any time $t$; and (iii) $\tau_{e, 1} \leq \ldots \leq \tau_{e, K}$. Based on these facts, it follows that $\rnd{M}_{e, e^\ast} \leq \tau_{e, e^\ast}$, and moreover $\sum_{e^\ast = 1}^K \rnd{M}_{e, e^\ast} \leq \tau_{e, K}$. Therefore, the right-hand side of \eqref{eq:peel me} can be bounded from above by:
+\begin{align*}
+  \max \left\{\sum_{e^\ast = 1}^K \Delta_{e, e^\ast} m_{e, e^\ast}:
+  0 \leq m_{e, e^\ast} \leq \tau_{e, e^\ast}, \ \sum_{e^\ast = 1}^K m_{e, e^\ast} \leq \tau_{e, K}\right\}\,.
+\end{align*}
+Since the gaps are decreasing, $\Delta_{e, 1} \geq \ldots \geq \Delta_{e, K}$, the solution to the above problem is $m_{e, 1}^\ast = \tau_{e, 1}$, $m_{e, 2}^\ast = \tau_{e, 2} - \tau_{e, 1}$, $\dots$, $m_{e, K}^\ast = \tau_{e, K} - \tau_{e, K - 1}$. Therefore, the value of \eqref{eq:peel me} is bounded from above by:
+\begin{align*}
+  \left[\Delta_{e, 1} \frac{1}{\Delta_{e, 1}^2} + \sum_{e^\ast = 2}^K \Delta_{e, e^\ast}
+  \left(\frac{1}{\Delta_{e, e^\ast}^2} - \frac{1}{\Delta_{e, e^\ast - 1}^2}\right)\right] 6 \log n\,.
+\end{align*}
+By Lemma 3 of \citet{kveton14matroid}, the above term is bounded by $\frac{12}{\Delta_{e, K}} \log n$. Finally, we chain all inequalities and sum over all suboptimal items $e$.
+
+
+\subsection{Proof of \cref{thm:klucb}}
+\label{sec:proof klucb}
+
+Let $\rnd{R}_t = R(\rnd{A}_t, \rnd{w}_t)$ be the regret of the learning algorithm at time $t$, where $\rnd{A}_t$ is the recommended list at time $t$ and $\rnd{w}_t$ are the weights of items at time $t$. Let $\cE_t = \set{\exists 1 \leq e \leq K \text{ s.t. } \bar{w}(e) > \rnd{U}_t(e)}$ be the event that the attraction probability of at least one optimal item is above its upper confidence bound at time $t$. Let $\ccE_t$ be the complement of event $\cE_t$. Then we can decompose the regret of $\cascadeklucb$ as:
+\begin{align}
+  R(n) =
+  \EE{\sum_{t = 1}^n \I{\cE_t} \rnd{R}_t} +
+  \EE{\sum_{t = 1}^n \I{\ccE_t} \rnd{R}_t}\,.
+  \label{eq:good bad klucb}
+\end{align}
+By Theorems 2 and 10 of \citet{garivier11klucb}, thanks to the choice of the upper confidence bound $\rnd{U}_t$, the first term in \eqref{eq:good bad klucb} is bounded as $\EE{\sum_{t = 1}^n \I{\cE_t} \rnd{R}_t} \leq 7 K \log \log n$. As in the proof of \cref{thm:ucb1}, we rewrite the second term as:
+\begin{align*}
+  \EE{\sum_{t = 1}^n \I{\ccE_t} \rnd{R}_t} =
+  \sum_{t = 1}^n \EE{\I{\ccE_t} \EEt{\rnd{R}_t}} \leq
+  \sum_{e = K + 1}^L \EE{\sum_{e^\ast = 1}^K \sum_{t = 1}^n \Delta_{e, e^\ast} \I{\ccE_t, G_{e, e^\ast, t}}}\,.
+\end{align*}
+Now note that for any suboptimal item $e$ and $\tau_{e, e^\ast} > 0$:
+\begin{align}
+  \EE{\sum_{e^\ast = 1}^K \sum_{t = 1}^n \Delta_{e, e^\ast} \I{\ccE_t, G_{e, e^\ast, t}}}
+  & \leq \EE{\sum_{e^\ast = 1}^K \sum_{t = 1}^n
+  \Delta_{e, e^\ast} \I{\rnd{T}_{t - 1}(e) \leq \tau_{e, e^\ast}, \ G_{e, e^\ast, t}}} + {} \label{eq:pull split} \\
+  & \phantom{{} = {}} \sum_{e^\ast = 1}^K \Delta_{e, e^\ast}
+  \EE{\sum_{t = 1}^n \I{\rnd{T}_{t - 1}(e) > \tau_{e, e^\ast}, \ \ccE_t, \ G_{e, e^\ast, t}}}\,. \nonumber
+\end{align}
+Let:
+\begin{align*}
+  \tau_{e, e^\ast} = \frac{1 + \eps}{\kl{\bar{w}(e)}{\bar{w}(e^\ast)}}(\log n + 3 \log \log n)\,.
+\end{align*}
+Then by the same argument as in Theorem 2 and Lemma 8 of \citet{garivier11klucb}:
+\begin{align*}
+  \EE{\sum_{t = 1}^n \I{\rnd{T}_{t - 1}(e) > \tau_{e, e^\ast}, \ \ccE_t, \ G_{e, e^\ast, t}}} \leq
+  \frac{C_2(\eps)}{n^{\beta(\eps)}}
+\end{align*}
+holds for any suboptimal $e$ and optimal $e^\ast$. So the second term in \eqref{eq:pull split} is bounded from above by $K \frac{C_2(\eps)}{n^{\beta(\eps)}}$. Now we bound the first term in \eqref{eq:pull split}. By the same argument as in the proof of \cref{thm:ucb1}:
+\begin{align*}
+  & \sum_{e^\ast = 1}^K \sum_{t = 1}^n
+  \Delta_{e, e^\ast} \I{\rnd{T}_{t - 1}(e) \leq \tau_{e, e^\ast}, \ G_{e, e^\ast, t}} \leq \\
+  & \quad \left[\frac{\Delta_{e, 1}}{\kl{\bar{w}(e)}{\bar{w}(1)}} + \sum_{e^\ast = 2}^K \Delta_{e, e^\ast}
+  \left(\frac{1}{\kl{\bar{w}(e)}{\bar{w}(e^\ast)}} - \frac{1}{\kl{\bar{w}(e)}{\bar{w}(e^\ast - 1)}}\right)\right]
+  (1 + \eps) (\log n + 3 \log \log n)
+\end{align*}
+holds for any suboptimal item $e$. By \cref{lem:klucb peeling}, the leading constant is bounded as:
+\begin{align*}
+  \frac{\Delta_{e, 1}}{\kl{\bar{w}(e)}{\bar{w}(1)}} + \sum_{e^\ast = 2}^K \Delta_{e, e^\ast}
+  \left(\frac{1}{\kl{\bar{w}(e)}{\bar{w}(e^\ast)}} - \frac{1}{\kl{\bar{w}(e)}{\bar{w}(e^\ast - 1)}}\right) \leq
+  \frac{\Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))}{\kl{\bar{w}(e)}{\bar{w}(K)}}\,.
+\end{align*}
+Finally, we chain all inequalities and sum over all suboptimal items $e$.
+
+
+\section{Technical Lemmas}
+\label{sec:lemmas}
+
+\newtheorem*{lem:modular decomposition}{\cref{lem:modular decomposition}}
+\begin{lem:modular decomposition}
+Let $A = (a_1, \dots, a_K)$ and $B = (b_1, \dots, b_K)$ be any two lists of $K$ items from $\Pi_K(E)$ such that $a_i = b_j$ only if $i = j$. Let $\rnd{w} \sim P$ in \cref{ass:independence}. Then:
+\begin{align*}
+  \EE{\prod_{k = 1}^K \rnd{w}(a_k) - \prod_{k = 1}^K \rnd{w}(b_k)} =
+  \sum_{k = 1}^K \EE{\prod_{i = 1}^{k - 1} \rnd{w}(a_i)}
+  \EE{\rnd{w}(a_k) - \rnd{w}(b_k)} \left(\prod_{j = k + 1}^K \EE{\rnd{w}(b_j)}\right)\,.
+\end{align*}
+\end{lem:modular decomposition}
+\begin{proof}
+First, we prove that:
+\begin{align*}
+  \prod_{k = 1}^K w(a_k) - \prod_{k = 1}^K w(b_k) =
+  \sum_{k = 1}^K \left(\prod_{i = 1}^{k - 1} w(a_i)\right) (w(a_k) - w(b_k)) \left(\prod_{j = k + 1}^K w(b_j)\right)
+\end{align*}
+holds for any $w \in \set{0, 1}^L$. The proof is by induction on $K$. The claim holds obviously for $K = 1$. Now suppose that the claim holds for any $A, B \in \Pi_{K - 1}(E)$. Let $A, B \in \Pi_K(E)$. Then:
+\begin{align*}
+  \prod_{k = 1}^K w(a_k) - \prod_{k = 1}^K w(b_k)
+  & = \prod_{k = 1}^K w(a_k) - w(b_K) \prod_{k = 1}^{K - 1} w(a_k) +
+  w(b_K) \prod_{k = 1}^{K - 1} w(a_k) - \prod_{k = 1}^K w(b_k) \\
+  & = (w(a_K) - w(b_K)) \prod_{k = 1}^{K - 1} w(a_k) +
+  w(b_K) \left[\prod_{k = 1}^{K - 1} w(a_k) - \prod_{k = 1}^{K - 1} w(b_k)\right] \\
+  & = (w(a_K) - w(b_K)) \prod_{k = 1}^{K - 1} w(a_k) +
+  \sum_{k = 1}^{K - 1} \left(\prod_{i = 1}^{k - 1} w(a_i)\right)
+  (w(a_k) - w(b_k)) \left(\prod_{j = k + 1}^K w(b_j)\right) \\
+  & = \sum_{k = 1}^K \left(\prod_{i = 1}^{k - 1} w(a_i)\right)
+  (w(a_k) - w(b_k)) \left(\prod_{j = k + 1}^K w(b_j)\right)\,.
+\end{align*}
+The third equality is by our induction hypothesis. Finally, note that $\rnd{w}$ is drawn from a factored distribution. Therefore, we can decompose the expectation of the product as a product of expectations, and our claim follows.
+\end{proof}
+
+\begin{lemma}
+\label{lem:klucb peeling} Let $p_1 \geq \ldots \geq p_K > p$ be $K + 1$ probabilities and $\Delta_k = p_k - p$ for $1 \leq k \leq K$. Then:
+\begin{align*}
+  \frac{\Delta_1}{\kl{p}{p_1}} + \sum_{k = 2}^K \Delta_k
+  \left(\frac{1}{\kl{p}{p_k}} - \frac{1}{\kl{p}{p_{k - 1}}}\right) \leq
+  \frac{\Delta_K (1 + \log(1 / \Delta_K))}{\kl{p}{p_K}}\,.
+\end{align*}
+\end{lemma}
+\begin{proof}
+First, we note that:
+\begin{align*}
+  \frac{\Delta_1}{\kl{p}{p_1}} + \sum_{k = 2}^K \Delta_k
+  \left(\frac{1}{\kl{p}{p_k}} - \frac{1}{\kl{p}{p_{k - 1}}}\right) =
+  \sum_{k = 1}^{K - 1} \frac{\Delta_k - \Delta_{k + 1}}{\kl{p}{p_k}} + \frac{\Delta_K}{\kl{p}{p_K}}\,.
+\end{align*}
+The summation over $k$ can be bounded from above by a definite integral:
+\begin{align*}
+  \sum_{k = 1}^{K - 1} \frac{\Delta_k - \Delta_{k + 1}}{\kl{p}{p_k}} =
+  \sum_{k = 1}^{K - 1} \frac{\Delta_k - \Delta_{k + 1}}{\kl{p}{p + \Delta_k}} \leq
+  \int_{\Delta_K}^{\Delta_1} \frac{1}{\kl{p}{p + x}} \ud x \leq
+  \int_{\Delta_K}^1 \frac{1}{\kl{p}{p + x}} \ud x\,,
+\end{align*}
+where the first inequality follows from the fact that $1 / \kl{p}{p + x}$ decreases on $x \geq 0$. To the best of our knowledge, the integral of $1 / \kl{p}{p + x}$ over $x$ does not have a simple analytic solution. Therefore, we integrate an upper bound on $1 / \kl{p}{p + x}$ which does. In particular, note that for any $x \geq \Delta_K$:
+\begin{align*}
+  \kl{p}{p + x} \geq \frac{\kl{p}{p + \Delta_K}}{\Delta_K} x = \frac{\kl{p}{p_K}}{\Delta_K} x
+\end{align*}
+because $\kl{p}{p + x}$ is convex, increasing in $x \geq 0$, and its minimum is attained at $x = 0$. Therefore:
+\begin{align*}
+  \int_{\Delta_K}^1 \frac{1}{\kl{p}{p + x}} \ud x \leq
+  \frac{\Delta_K}{\kl{p}{p_K}} \int_{\Delta_K}^1 \frac{1}{x} \ud x =
+  \frac{\Delta_K}{\kl{p}{p_K}} \log(1 / \Delta_K)\,.
+\end{align*}
+Finally, we chain all inequalities and get the final result.
+\end{proof}

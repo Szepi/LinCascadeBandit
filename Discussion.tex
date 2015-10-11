@@ -1,0 +1,26 @@
+%!TEX root = Paper.tex
+
+\subsection{Discussion}
+\label{sec:discussion}
+
+We prove two gap-dependent upper bounds on the $n$-step regret of $\cascadeucb$ (\cref{thm:ucb1}) and $\cascadeklucb$ (\cref{thm:klucb}). The bounds are $O(\log n)$, linear in the number of items $L$, and they improve as the number of recommended items $K$ increases. The bounds do not depend on the order of recommended items. This is due to the nature of our proofs, where we count events that ignore the positions of the items. We would like to extend our analysis in this direction in future work.
+
+We discuss the tightness of our upper bounds on problem $B_\mathrm{LB}(L, K, p, \Delta)$ in \cref{sec:lower bound} where we set $p = 1 / K$. In this problem, \cref{thm:lower bound} yields an asymptotic lower bound of:
+\begin{align}
+  \textstyle \Omega\left((L - K) \frac{\Delta}{\kl{p - \Delta}{p}} \log n\right)
+  \label{eq:discussion lower bound}
+\end{align}
+since $(1 - 1 / K)^{K - 1} \geq 1 / e$ for $K > 1$. The $n$-step regret of $\cascadeucb$ is bounded by \cref{thm:ucb1} as:
+\begin{align}
+  & \textstyle O\left((L - K) \frac{1}{\Delta} \log n\right) \nonumber \\
+  & \textstyle \ = O\left((L - K) \frac{\Delta}{\Delta^2} \log n\right) \nonumber \\
+  & \textstyle \ = O\left((L - K) \frac{\Delta}{p (1 - p) \kl{p - \Delta}{p}} \log n\right) \nonumber \\
+  & \textstyle \ = O\left(K (L - K) \frac{\Delta}{\kl{p - \Delta}{p}} \log n\right)\,,
+  \label{eq:discussion ucb1}
+\end{align}
+where the second equality is by $\kl{p - \Delta}{p} \! \leq \! \frac{\Delta^2}{p (1 - p)}$. The $n$-step regret of $\cascadeklucb$ is bounded by \cref{thm:klucb} as:
+\begin{align}
+  \textstyle O\left((L - K) \frac{\Delta (1 + \log(1 / \Delta))}{\kl{p - \Delta}{p}} \log n\right)
+  \label{eq:discussion klucb}
+\end{align}
+and matches the lower bound in \eqref{eq:discussion lower bound} up to $\log(1 / \Delta)$. Note that the upper bound of $\cascadeklucb$ \eqref{eq:discussion klucb} is below that of $\cascadeucb$ \eqref{eq:discussion ucb1} when $\log(1 / \Delta) = O(K)$, or equivalently when $\Delta = \Omega(e^{- K})$. It is an open problem whether the factor of $\log(1 / \Delta)$ in \eqref{eq:discussion klucb} can be eliminated.

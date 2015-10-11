@@ -1,0 +1,107 @@
+%!TEX root = Paper.tex
+
+\section{Analysis}
+\label{sec:analysis}
+
+Our analysis exploits the fact that our reward and feedback models are closely connected. More specifically, we show in \cref{sec:regret decomposition} that the learning algorithm can suffer regret only if it recommends suboptimal items that are observed. Based on this result, we prove upper bounds on the $n$-step regret of $\cascadeucb$ and $\cascadeklucb$ (\cref{sec:upper bounds}). We prove a lower bound on the regret in cascading bandits in \cref{sec:lower bound}. We discuss our results in \cref{sec:discussion}.
+
+
+\subsection{Regret Decomposition}
+\label{sec:regret decomposition}
+
+Without loss of generality, we assume that the items in the ground set $E$ are sorted in decreasing order of their attraction probabilities, $\bar{w}(1) \geq \ldots \geq \bar{w}(L)$. In this setting, the \emph{optimal solution} is $A^\ast = (1, \dots, K)$, and contains the first $K$ items in $E$. We say that item $e$ is \emph{optimal} if $1 \leq e \leq K$. Similarly, we say that item $e$ is \emph{suboptimal} if $K < e \leq L$. The \emph{gap} between the attraction probabilities of suboptimal item $e$ and optimal item $e^\ast$:
+\begin{align}
+  \Delta_{e, e^\ast} = \bar{w}(e^\ast) - \bar{w}(e)
+  \label{eq:gap}
+\end{align}
+measures the hardness of discriminating the items. Whenever convenient, we view an ordered list of items as the set of items on that list.
+
+Our main technical lemma is below. The lemma says that the expected value of the difference of the products of random variables can be written in a particularly useful form.
+
+\begin{lemma}
+\label{lem:modular decomposition} Let $A = (a_1, \dots, a_K)$ and $B = (b_1, \dots, b_K)$ be any two lists of $K$ items from $\Pi_K(E)$ such that $a_i = b_j$ only if $i = j$. Let $\rnd{w} \sim P$ in \cref{ass:independence}. Then:
+\begin{align*}
+  & \EE{\prod_{k = 1}^K \rnd{w}(a_k) - \prod_{k = 1}^K \rnd{w}(b_k)} =
+  \sum_{k = 1}^K \EE{\prod_{i = 1}^{k - 1} \rnd{w}(a_i)} \times {} \\
+  & \quad \EE{\rnd{w}(a_k) - \rnd{w}(b_k)} \left(\prod_{j = k + 1}^K \EE{\rnd{w}(b_j)}\right)\,.
+\end{align*}
+\end{lemma}
+\begin{proof}
+The claim is proved in \cref{sec:lemmas}.
+\end{proof}
+
+Let:
+\begin{align}
+  \cH_t = (\rnd{A}_1, \rnd{C}_1, \dots, \rnd{A}_{t - 1}, \rnd{C}_{t - 1}, \rnd{A}_t)
+  \label{eq:history}
+\end{align}
+be the \emph{history} of the learning agent up to choosing $\rnd{A}_t$, the first $t - 1$ observations and $t$ actions. Let $\EEt{\cdot} = \condEE{\cdot}{\cH_t}$ be the conditional expectation given history $\cH_t$. We bound $\EEt{R(\rnd{A}_t, \rnd{w}_t)}$, the expected regret conditioned on history $\cH_t$, as follows.
+
+\begin{theorem}
+\label{thm:regret decomposition} For any item $e$ and optimal item $e^\ast$, let:
+\begin{align}
+  G_{e, e^\ast, t} & = \{\exists 1 \leq k \leq K \text{ s.t. } \rnd{a}^t_k = e, \ \pi_t(k) = e^\ast,
+  \label{eq:counted event} \\
+  & \phantom{{} = \{} \rnd{w}_t(\rnd{a}^t_1) = \ldots = \rnd{w}_t(\rnd{a}^t_{k - 1}) = 0\} \nonumber
+\end{align}
+be the event that item $e$ is chosen instead of item $e^\ast$ at time $t$, and that item $e$ is observed. Then there exists a permutation $\pi_t$ of optimal items $\set{1, \dots, K}$, which is a deterministic function of $\cH_t$, such that $\rnd{U}_t(\rnd{a}^t_k) \geq \rnd{U}_t(\pi_t(k))$ for all $k$. Moreover:
+\begin{align*}
+  \EEt{R(\rnd{A}_t, \rnd{w}_t)} & \leq
+  \sum_{e = K + 1}^L \sum_{e^\ast = 1}^K \Delta_{e, e^\ast} \EEt{\I{G_{e, e^\ast, t}}} \\
+  \EEt{R(\rnd{A}_t, \rnd{w}_t)} & \geq
+  \alpha \sum_{e = K + 1}^L \sum_{e^\ast = 1}^K \Delta_{e, e^\ast} \,\EEt{\I{G_{e, e^\ast, t}}}\,,
+\end{align*}
+where $\alpha = (1 - \bar{w}(1))^{K - 1}$ and $\bar{w}(1)$ is the attraction probability of the most attractive item.
+\end{theorem}
+\begin{proof}
+We define $\pi_t$ as follows. For any $k$, if the $k$-th item in $\rnd{A}_t$ is optimal, we place this item at position $k$, $\pi_t(k) = \rnd{a}^t_k$. The remaining optimal items are positioned arbitrarily. Since $A^\ast$ is optimal with respect to $\bar{w}$, $\bar{w}(\rnd{a}^t_k) \leq \bar{w}(\pi_t(k))$ for all $k$. Similarly, since $\rnd{A}_t$ is optimal with respect to $\rnd{U}_t$, $\rnd{U}_t(\rnd{a}^t_k) \geq \rnd{U}_t(\pi_t(k))$ for all $k$. Therefore, $\pi_t$ is the desired permutation.
+
+The permutation $\pi_t$ reorders the optimal items in a convenient way. Since time $t$ is fixed, let $\rnd{a}^\ast_k = \pi_t(k)$. Then:
+\begin{align*}
+  & \EEt{R(\rnd{A}_t, \rnd{w}_t)} = \\
+  & \quad \EEt{\prod_{k = 1}^K (1 - \rnd{w}_t(\rnd{a}^t_k)) - \prod_{k = 1}^K (1 - \rnd{w}_t(\rnd{a}^\ast_k))}\,.
+\end{align*}
+Now we exploit the fact that the entries of $\rnd{w}_t$ are independent of each other given $\cH_t$. By \cref{lem:modular decomposition}, we can rewrite the right-hand side of the above equation as:
+\begin{align*}
+  & \sum_{k = 1}^K \EEt{\prod_{i = 1}^{k - 1} (1 - \rnd{w}_t(\rnd{a}^t_i))}
+  \EEt{\rnd{w}_t(\rnd{a}^\ast_k) - \rnd{w}_t(\rnd{a}^t_k)} \times {} \\
+  & \quad \left(\prod_{j = k + 1}^K \EEt{1 - \rnd{w}_t(\rnd{a}^\ast_j)}\right)\,.
+\end{align*}
+Note that $\EEt{\rnd{w}_t(\rnd{a}^\ast_k) - \rnd{w}_t(\rnd{a}^t_k)} = \Delta_{\rnd{a}^t_k, \rnd{a}^\ast_k}$. Furthermore, $\prod_{i = 1}^{k - 1} (1 - \rnd{w}_t(\rnd{a}^t_i)) = \I{G_{\rnd{a}^t_k, \rnd{a}^\ast_k, t}}$ by conditioning on $\cH_t$. Therefore, we get that $\EEt{R(\rnd{A}_t, \rnd{w}_t)}$ is equal to:
+\begin{align*}
+  \sum_{k = 1}^K \Delta_{\rnd{a}^t_k, \rnd{a}^\ast_k} \EEt{\I{G_{\rnd{a}^t_k, \rnd{a}^\ast_k, t}}}
+  \prod_{j = k + 1}^K \EEt{1 - \rnd{w}_t(\rnd{a}^\ast_j)}\,.
+\end{align*}
+By definition of $\pi_t$, $\Delta_{\rnd{a}^t_k, \rnd{a}^\ast_k} = 0$ when item $\rnd{a}^t_k$ is optimal. In addition, $1 - \bar{w}(1) \leq \EEt{1 - \rnd{w}_t(\rnd{a}^\ast_j)} \leq 1$ for any optimal $\rnd{a}^\ast_j$. Our upper and lower bounds on $\EEt{R(\rnd{A}_t, \rnd{w}_t)}$ follow from these observations.
+\end{proof}
+
+
+\subsection{Upper Bounds}
+\label{sec:upper bounds}
+
+In this section, we derive two upper bounds on the $n$-step regret of $\cascadeucb$ and $\cascadeklucb$.
+
+\begin{theorem}
+\label{thm:ucb1} The expected $n$-step regret of $\cascadeucb$ is bounded as:
+\begin{align*}
+  R(n) \leq
+  \sum_{e = K + 1}^L \frac{12}{\Delta_{e, K}} \log n + \frac{\pi^2}{3} L\,.
+\end{align*}
+\end{theorem}
+\begin{proof}
+The complete proof is in \cref{sec:proof ucb1}. The proof has four main steps. First, we bound the regret of the event that $\bar{w}(e)$ is outside of the high-probability confidence interval around $\hat{\rnd{w}}_{\rnd{T}_{t - 1}(e)}(e)$ for at least one item $e$. Second, we decompose the regret at time $t$ and apply \cref{thm:regret decomposition} to bound it from above. Third, we bound the number of times that each suboptimal item is chosen in $n$ steps. Fourth, we peel off an extra factor of $K$ in our upper bound based on \citet{kveton14matroid}. Finally, we sum up the regret of all suboptimal items.
+\end{proof}
+
+\begin{theorem}
+\label{thm:klucb} For any $\eps > 0$, the expected $n$-step regret of $\cascadeklucb$ is bounded as:
+\begin{align*}
+  R(n)
+  & \leq \sum_{e = K + 1}^L
+  \frac{(1 + \eps) \Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))}{\kl{\bar{w}(e)}{\bar{w}(K)}} \times {} \\
+  & \qquad\qquad\ (\log n + 3 \log \log n) + C\,,
+\end{align*}
+where $C = K L \frac{C_2(\eps)}{n^{\beta(\eps)}} + 7 K \log \log n$, and the constants $C_2(\eps)$ and $\beta(\eps)$ are defined in \citet{garivier11klucb}. 
+\end{theorem}
+\begin{proof}
+The complete proof is in \cref{sec:proof klucb}. The proof has four main steps. First, we bound the regret of the event that $\bar{w}(e) > \rnd{U}_t(e)$ for at least one optimal item $e$. Second, we decompose the regret at time $t$ and apply \cref{thm:regret decomposition} to bound it from above. Third, we bound the number of times that each suboptimal item is chosen in $n$ steps. Fourth, we derive a new peeling argument for $\klucb$ (\cref{lem:klucb peeling}) and eliminate an extra factor of $K$ in our upper bound. Finally, we sum up the regret of all suboptimal items.
+\end{proof}

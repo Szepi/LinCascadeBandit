@@ -1,0 +1,10 @@
+%!TEX root = Paper.tex
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+In this paper, we propose a learning variant of the cascade model \cite{craswell08experimental}, a popular model of user behavior in web search. We propose two algorithms for solving it, $\cascadeucb$ and $\cascadeklucb$, and prove gap-dependent upper bounds on their regret. Our analysis addresses two main challenges of our problem, a non-linear reward function and limited feedback. We evaluate our algorithms on several problems and show that they perform well even when our modeling assumptions are violated.
+
+We leave open several questions of interest. For instance, we show in \cref{sec:experiments imperfect model} that  $\cascadeklucb$ can learn the optimal solution to the DBN model. This indicates that the DBN model is learnable in the bandit setting and we leave this for future work. Note that the regret in cascading bandits is $\Omega(L)$ (\cref{sec:lower bound}). Therefore, our learning framework is not practical when the number of items $L$ is large. Similarly to \citet{slivkins13ranked}, we plan to address this issue by embedding the items in some feature space, along the lines of  \citet{wen15efficient}. Finally, we want to generalize our results to more complex problems, such as learning routing paths in computer networks where the connections fail with unknown probabilities.
+
+From the theoretical point of view, we would like to close the gap between our upper and lower bounds. In addition, we want to derive gap-free bounds. Finally, we would like to refine our analysis so that it explains that the reverse ordering of recommended items yields smaller regret.

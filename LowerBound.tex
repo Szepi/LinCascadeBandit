@@ -1,0 +1,51 @@
+%!TEX root = Paper.tex
+
+\subsection{Lower Bound}
+\label{sec:lower bound}
+
+Our lower bound is derived on the following problem. The ground set contains $L$ items $E = \set{1, \dots, L}$. The distribution $P$ is a product of $L$ Bernoulli distributions $P_e$, each of which is parameterized by:
+\begin{align}
+  \bar{w}(e) =
+  \begin{cases}
+    p & e \leq K \\
+    p - \Delta & \text{otherwise}\,,
+  \end{cases}
+  \label{eq:attraction probability}
+\end{align}
+where $\Delta \in (0, p)$ is the gap between any optimal and suboptimal items. We refer to the resulting bandit problem as $B_\mathrm{LB}(L, K, p, \Delta)$; and parameterize it by $L$, $K$, $p$, and $\Delta$.
+
+Our lower bound holds for consistent algorithms. We say that the algorithm is \emph{consistent} if for any cascading bandit, any suboptimal list $A$, and any $\alpha > 0$, $\EE{\rnd{T}_n(A)} = o(n^\alpha)$, where $\rnd{T}_n(A)$ is the number of times that list $A$ is recommended in $n$ steps. Note that the restriction to the consistent algorithms is without loss of generality. \mbox{The reason is} that any inconsistent algorithm must suffer polynomial regret on some instance of cascading bandits, and therefore cannot achieve logarithmic regret on every instance of our problem, similarly to $\cascadeucb$ and $\cascadeklucb$.
+
+\begin{theorem}
+\label{thm:lower bound} For any cascading bandit $B_\mathrm{LB}$, the regret of any consistent algorithm is bounded from below as:
+\begin{align*}
+  \liminf_{n \to \infty} \frac{R(n)}{\log n} \geq
+  \frac{(L - K) \Delta (1 - p)^{K - 1}}{\kl{p - \Delta}{p}}\,.
+\end{align*}
+\end{theorem}
+\begin{proof}
+By \cref{thm:regret decomposition}, the expected regret at time $t$ conditioned on history $\cH_t$ is bounded from below as:
+\begin{align*}
+  \EEt{R(\rnd{A}_t, \rnd{w}_t)} \geq
+  \Delta (1 - p)^{K - 1} \!\!\!\! \sum_{e = K + 1}^L \sum_{e^\ast = 1}^K \! \EE{\I{G_{e, e^\ast, t}}}\,.
+\end{align*}
+Based on this result, the $n$-step regret is bounded as:
+\begin{align*}
+  R(n)
+  & \geq \Delta (1 - p)^{K - 1} \sum_{e = K + 1}^L
+  \EE{\sum_{t = 1}^n \sum_{e^\ast = 1}^K \I{G_{e, e^\ast, t}}} \\
+  & = \Delta (1 - p)^{K - 1} \sum_{e = K + 1}^L \EE{\rnd{T}_n(e)}\,,
+\end{align*}
+where the last step is based on the fact that the observation counter of item $e$ increases if and only if event $G_{e, e^\ast, t}$ happens. By the work of \citet{lai85asymptotically}, we have that for any suboptimal item $e$:
+\begin{align*}
+  \liminf_{n \to \infty} \frac{\EE{\rnd{T}_n(e)}}{\log n} \geq \frac{1}{\kl{p - \Delta}{p}}\,.
+\end{align*}
+Otherwise, the learning algorithm is unable to distinguish instances of our problem where item $e$ is optimal, and thus is not consistent. Finally, we chain all inequalities and get:
+\begin{align*}
+  \liminf_{n \to \infty} \frac{R(n)}{\log n} \geq
+  \frac{(L - K) \Delta (1 - p)^{K - 1}}{\kl{p - \Delta}{p}}\,.
+\end{align*}
+This concludes our proof.
+\end{proof}
+
+Our lower bound is practical when no optimal item is very attractive, $p < 1 / K$. In this case, the learning agent must learn $K$ sufficiently attractive items to identify the optimal solution. This lower bound is not practical when $p$ is close to $1$, because it becomes exponentially small. In this case, other lower bounds would be more practical. For instance, consider a problem with $L$ items where item $1$ is attractive with probability one and all other items are attractive with probability zero. The optimal list of $K$ items in this problem can be found in $L / (2 K)$ steps in expectation.

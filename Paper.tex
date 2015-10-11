@@ -1,0 +1,275 @@
+\documentclass{article}
+\usepackage{algorithm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{amsthm} We prefer ntheorem
+\usepackage{amsfonts}
+\usepackage{amssymb}
+%\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{bbm}
+\usepackage{bm}
+\usepackage{color}
+\usepackage{dsfont}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage{subfigure}
+\usepackage{times}
+
+
+%\usepackage{algorithm}
+%\usepackage[noend]{algpseudocode}
+\usepackage[noend]{algorithmic}
+\usepackage{url}
+\usepackage{bm}
+\usepackage[margin=2.5cm]{geometry}
+\setlength{\marginparwidth}{20mm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{hhline}
+\usepackage{paralist}
+\usepackage{xspace}
+
+
+%\usepackage[textsize=tiny]{todonotes}
+%\usepackage[disable]{todonotes}
+\usepackage{todonotes}
+\newcommand{\todoc}[2][]{\xspace\todo[color=red!20!white,size=\tiny,#1]{Cs: #2}}
+\newcommand{\todoh}[2][]{\xspace\todo[color=orange!20!white,size=\tiny,#1]{H: #2}}
+
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{corollary}{Corollary}[theorem]
+%\newtheorem{lemma}[theorem]{Lemma}
+\usepackage[amsmath,standard,thmmarks]{ntheorem} % ntheorem makes cleveref work properly 
+
+% Hyperlinks make it very easy to navigate an electronic document.
+% In addition, this is where you should specify the thesis title
+% and author as they appear in the properties of the PDF document.
+% Use the "hyperref" package 
+% N.B. HYPERREF MUST BE THE SECOND TO LAST PACKAGE LOADED; ADD ADDITIONAL PKGS ABOVE
+\usepackage[pdftex,letterpaper=true,pagebackref=false]{hyperref} % with basic options
+		% N.B. pagebackref=true provides links back from the References to the body text. This can cause trouble for printing.
+\hypersetup{
+    plainpages=false,       % needed if Roman numbers in frontpages
+    pdfpagelabels=true,     % adds page number as label in Acrobat's page count
+    bookmarks=true,         % show bookmarks bar?
+    unicode=false,          % non-Latin characters in Acrobat’s bookmarks
+    pdftoolbar=true,        % show Acrobat’s toolbar?
+    pdfmenubar=true,        % show Acrobat’s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdftitle={(Bandit) Convex Optimization with Biased Noisy Gradient Oracles},    % set
+    pdfauthor={},    % set
+%     pdfauthor={D\'avid Szepesv\'ari},    % set
+%    pdfsubject={Subject},  % subject: CHANGE THIS TEXT! and uncomment this line
+%    pdfkeywords={keyword1} {key2} {key3}, % list of keywords, and uncomment this line if desired
+    pdfnewwindow=true,      % links in new window
+    colorlinks=true,        % false: boxed links; true: colored links
+    linkcolor=blue,         % color of internal links
+    citecolor=blue,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+% N.B. CLEVEREF MUST BE LOADED; AFTER HYPERREF
+\usepackage[capitalize]{cleveref}
+
+
+\renewcommand{\baselinestretch}{0.99}
+
+\newcommand{\commentout}[1]{}
+\newcommand{\junk}[1]{}
+\newcommand{\etal}{\emph{et al.}}
+
+\if0
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{claim}{Claim}
+\newtheorem{fact}{Fact}
+\newtheorem{definition}{Definition}
+\newtheorem{observation}{Observation}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+\fi
+\newtheorem{assumption}{Assumption}
+%\renewcommand{\qed}{\rule{5pt}{5pt}}
+
+\newcommand{\ba}{{\bf a}}
+\newcommand{\bA}{{\bf A}}
+\newcommand{\bb}{{\bf b}}
+\newcommand{\bB}{{\bf B}}
+\newcommand{\bc}{{\bf c}}
+\newcommand{\bC}{{\bf C}}
+\newcommand{\bd}{{\bf d}}
+\newcommand{\bD}{{\bf D}}
+\newcommand{\be}{{\bf e}}
+\newcommand{\bE}{{\bf E}}
+\newcommand{\bh}{{\bf h}}
+\newcommand{\bH}{{\bf H}}
+\newcommand{\bi}{{\bf i}}
+\newcommand{\bI}{{\bf I}}
+\newcommand{\bM}{{\bf M}}
+\newcommand{\bs}{{\bf s}}
+\newcommand{\bS}{{\bf S}}
+\newcommand{\bu}{{\bf u}}
+\newcommand{\bU}{{\bf U}}
+\newcommand{\bv}{{\bf v}}
+\newcommand{\bV}{{\bf V}}
+\newcommand{\bw}{{\bf w}}
+\newcommand{\bwbar}{\overline{\bw}}
+\newcommand{\bwhat}{\widehat{\bw}}
+\newcommand{\bwstar}{\bw^\ast}
+\newcommand{\bwtilde}{\widetilde{\bw}}
+\newcommand{\bW}{{\bf W}}
+\newcommand{\bx}{{\bf x}}
+\newcommand{\bX}{{\bf X}}
+\newcommand{\by}{{\bf y}}
+\newcommand{\bY}{{\bf Y}}
+\newcommand{\bz}{{\bf z}}
+\newcommand{\bZ}{{\bf Z}}
+\newcommand{\balpha}{{\bm \alpha}}
+\newcommand{\bell}{{\bm \ell}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\ccE}{\overline{\cE}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cZ}{\mathcal{Z}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\pistar}{\pi^\ast}
+\newcommand{\Qpi}{Q^\pi}
+\newcommand{\Qstar}{Q^\ast}
+\newcommand{\Vhat}{\widehat{V}}
+\newcommand{\Vpi}{V^\pi}
+\newcommand{\Vbw}{V^\bw}
+\newcommand{\Vbwbar}{V^{\bwbar}}
+\newcommand{\Vbwhat}{V^{\bwhat}}
+\newcommand{\Vbwstar}{V^{\bwstar}}
+\newcommand{\Vbwtilde}{V^{\bwtilde}}
+\newcommand{\Vstar}{V^\ast}
+\newcommand{\wbar}{\overline{w}}
+\newcommand{\what}{\widehat{w}}
+\newcommand{\wstar}{w^\ast}
+\newcommand{\wtilde}{\widetilde{w}}
+
+\newcommand{\integerset}{\mathbb{Z}}
+\newcommand{\naturalset}{\mathbb{N}}
+\newcommand{\realset}{\mathbb{R}}
+\newcommand{\Real}{\mathbb{R}}
+\newcommand{\R}{\mathbb{R}}
+
+\newcommand{\convexhull}[1]{\mathrm{conv}\left[#1\right]}
+\newcommand{\domain}[1]{\mathrm{dom}\left(#1\right)}
+\newcommand{\range}[1]{\mathrm{rng}\left[#1\right]}
+\newcommand{\parents}{\mathsf{pa}}
+\newcommand{\ip}[1]{\langle #1 \rangle}
+\newcommand{\ipgrow}[1]{\left\langle #1 \right\rangle}
+
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\ceils}[1]{\left\lceil#1\right\rceil}
+\newcommand{\condE}[3]{\mathbb{E}_{#2} \! \left[#1 \,\middle|\, #3\right]}
+\newcommand{\condEE}[2]{\mathbb{E} \left[#1 \,\middle|\, #2\right]}
+\newcommand{\E}[2]{\mathbb{E}_{#2} \! \left[#1\right]}
+\newcommand{\EE}[1]{\mathbb{E} \left[#1\right]}
+\newcommand{\EEt}[1]{\mathbb{E}_t \left[#1\right]}
+\newcommand{\floors}[1]{\left\lfloor#1\right\rfloor}
+\newcommand{\I}[1]{\mathds{1} \! \left\{#1\right\}}
+\newcommand{\inner}[2]{\langle#1, #2\rangle}
+\newcommand{\kl}[2]{D_\mathrm{KL}(#1 \,\|\, #2)}
+\newcommand{\klplus}[2]{D_\mathrm{KL}^+(#1 \,\|\, #2)}
+\newcommand{\maxnorm}[1]{\left\|#1\right\|_\infty}
+\newcommand{\maxnormw}[2]{\left\|#1\right\|_{\infty, #2}}
+\newcommand{\negpart}[1]{\left[#1\right]^-}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\normw}[2]{\left\|#1\right\|_{#2}}
+\newcommand{\pospart}[1]{\left[#1\right]^+}
+\newcommand{\rank}{\mathrm{rank}}
+\newcommand{\rnd}[1]{\mathbf{#1}}
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\subreal}[0]{\preceq}
+\newcommand{\supreal}[0]{\succeq}
+\newcommand{\transpose}{^\mathsf{\scriptscriptstyle T}}
+\newcommand{\ud}{\, \mathrm{d}}
+\newcommand{\var}[2]{\mathrm{Var}_{#1} \! \left[#2\right]}
+
+\DeclareMathOperator*{\argmax}{arg\,max\,}
+\DeclareMathOperator*{\argmin}{arg\,min\,}
+\mathchardef\mhyphen="2D
+
+\newcommand{\cascadeucb}{{\tt CascadeUCB1}}
+\newcommand{\lincascadeucb}{{\tt LinCascadeUCB}}
+\newcommand{\cascadeklucb}{{\tt CascadeKL\mhyphen UCB}}
+\newcommand{\combucb}{{\tt CombUCB1}}
+\newcommand{\klucb}{{\tt KL\mhyphen UCB}}
+\newcommand{\rankedklucb}{{\tt RankedKL\mhyphen UCB}}
+\newcommand{\ucb}{{\tt UCB1}}
+
+\title{Linear Cascading Bandits}
+\author{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A search engine usually outputs a list of $K$ web pages, or items. 
+The user examines this list, from the first web page to the last, and chooses 
+the first attractive page if any of the pages presented is attractive. 
+This model of user behavior is known as the cascade model. 
+In a previous paper the online learning variant of this model, called cascading bandits, was studied, where 
+the goal is to maximize the total number of clicks while learning about the expected attractiveness of the items.
+The state-of-the-art method for this problem learns individual attractiveness of the items, which makes it scale
+poorly with the number of items. 
+In this paper we assume that the individual items are characterized by a finite dimensional feature vector and the inner
+product of their feature vector with an unknown parameter vector gives the items expected attractiveness.
+We show that in this case the scaling with the number of items can be replaced with scaling with the number of features,
+thereby allowing the algorithm to deal with a large number of items as long as the feature vector dimension is small
+compared to the number of interactions that happen during learning.
+\end{abstract}
+
+\input{Introduction}
+
+\input{Background}
+
+\input{Model}
+
+\input{Analysis}
+
+\input{LowerBound}
+
+\input{Discussion}
+
+\input{Experiments}
+
+\input{RelatedWork}
+
+\input{Conclusions}
+
+\bibliographystyle{icml2015}
+\bibliography{References}
+
+\input{Appendix}
+
+\end{document}
