@@ -11,25 +11,30 @@ We propose a learning variant of the cascade model (\cref{sec:setting}) and two 
 
 We refer to our learning problem as a \emph{linear cascading bandit}. Formally, we represent the problem by a tuple $B = (E, \psi, \theta, K)$, where $E = \set{1, \dots, L}$ is a \emph{ground set} of $L$ items, $\psi : E \rightarrow \mathbb{R}^d$ is a mapping assigning features to each items, $\theta \in \mathbb{R}^d$ is an unknown parameter vector, and $K > 0$ is an integer representing the number of recommended items. 
 
+The problem is generated from \emph{cascading bandit problem}, where a probability distribution $P$ is defined over a unit hypercube $\set{0, 1}^E$. Let $(\rnd{X}_t)_{t = 1}^n$ be an i.i.d. sequence of binary random \emph{weight} vectors of dimension $L$ drawn from $P$, where $\rnd{X}_t \in \set{0, 1}^E$ and $\rnd{X}_t(e)$ is the preference of the user for item $e$ at time $t$. That is, $\rnd{X}_t(e) = 1$ if and only if item $e$ attracts the user at time $t$. In the cascade model (\cref{sec:background}), the weights of the items in the ground set $E$ are distributed independently. We also make this assumption.
+
+\begin{assumption}
+\label{ass:independence} The weights $X$ are distributed as:
+\begin{align*}
+  P(X) = \prod_{e \in E} P_e(X(e))\,,
+\end{align*}
+where $P_e$ is a Bernoulli distribution with mean $\bar{X}(e)$.
+\end{assumption}
+
+Under this assumption, we define the problem as a \emph{cascading bandit}. From there, we add another assumption to get to our new \emph{linear cascading bandit} problem.
+
 \begin{assumption}
 \label{ass:probability} In this problem we have:
 \begin{align*}
   \psi(e)^\top \theta \in [0,1] \,,
 \end{align*}
-for each $e \in E$.
-\end{assumption}
-
-Let $(\rnd{X}_t)_{t = 1}^n$ be an i.i.d. sequence of binary random vectors of dimension $L$, where $\rnd{X}_t \in \set{0, 1}^E$ and $\rnd{X}_t(e)$ is the preference of the user for item $e$ at time $t$. That is, $\rnd{X}_t(e) = 1$ if and only if item $e$ attracts the user at time $t$. The learning agent interacts with our problem as follows. At time $t$, the agent recommends a list of $K$ items $\rnd{A}_t = (\rnd{a}^t_1, \dots, \rnd{a}^t_K) \in \Pi_K(E)$. The list is computed from the observations of the agent up to time $t$. The user examines the list, from the first item $\rnd{a}^t_1$ to the last $\rnd{a}^t_K$, and clicks on the first attractive item. If the user is not attracted by any item, the user does not click on any item. Then time increases to $t + 1$.
-
-In the linear cascade model (\cref{sec:background}), the weights of the items in the ground set $E$ are distributed independently. We also make this assumption.
-
-\begin{assumption}
-\label{ass:independence} The weights $X$ are distributed as:
+for each $e \in E$, and the mean of weight distribution is defined as:
 \begin{align*}
-  P(X_t,i = 1) = \psi(i)^\top \theta \,,
+  \bar{X}(e) = \psi(e)^\top \theta \,,
 \end{align*}
-where $P$ is a Bernoulli distribution with mean $\bar{X}(e)$, referring as \emph{Attraction probability}.
 \end{assumption}
+
+The learning agent interacts with our problem as follows. At time $t$, the agent recommends a list of $K$ items $\rnd{A}_t = (\rnd{a}^t_1, \dots, \rnd{a}^t_K) \in \Pi_K(E)$. The list is computed from the observations of the agent up to time $t$. The user examines the list, from the first item $\rnd{a}^t_1$ to the last $\rnd{a}^t_K$, and clicks on the first attractive item. If the user is not attracted by any item, the user does not click on any item. Then time increases to $t + 1$.
 
 The reward of the agent at time $t$ can be written in several forms. For instance, as $\max_k \rnd{X}_t(\rnd{a}^t_k)$, at least one item in list $\rnd{A}_t$ is attractive; or as $f(\rnd{A}_t, \rnd{X}_t)$, where:
 \begin{align*}
