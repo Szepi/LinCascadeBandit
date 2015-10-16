@@ -151,19 +151,29 @@ where $\lambda>0$ is a tuning parameter and $\norm{\cdot}$ denotes the $2$-norm.
 Note that $\hat{\theta}_t$ can be updated incrementally. \todoc{Add details. Other computational considerations can be discussed later, i.e., $\hat{\theta}_t$ does need to be recomputed too frequently. See Yasin's thesis.}
 
 \begin{algorithm}[t]
-  \caption{UCB-like algorithm for cascading bandits.}
+  \caption{UCB-like algorithm for linear cascading bandits.}
   \label{alg:ucb}
   \begin{algorithmic}
     \STATE // Initialization
-    \STATE $\hat{\theta}_t \gets 0$
+    \STATE Observe $\rnd{X}_0 \sim P$
+    \STATE $\rnd{\theta}_0 \gets [\psi_{1:L} \psi_{1:L}^\top]^{-1} \psi_{1:L} \rnd{X}_0$
+    \STATE $\hat{\rnd{\theta}}_1 \gets \rnd{\theta}_0$
+    \STATE
     \FORALL{$t = 1, \dots, n$}
-      \STATE Compute UCBs $\rnd{U}_t(e)$ (\cref{sec:algorithms})
+      \STATE Compute UCBs $\rnd{U}_t(e)$ %%(\cref{sec:algorithms})
+      \STATE
       \STATE // Recommend a list of $K$ items and get feedback
       \STATE Let $\rnd{a}^t_1, \dots, \rnd{a}^t_K$ be $K$ items with largest UCBs
       \STATE $\rnd{A}_t \gets (\rnd{a}^t_1, \dots, \rnd{a}^t_K)$
       \STATE Observe click $\rnd{C}_t \in \set{1, \dots, K, \infty}$
+      \STATE
       \STATE // Update statistics
-      \STATE Update $\hat{\rnd{\theta}}_t$ using~\eqref{eq:ridge}.
+      \STATE Define $\rnd{X}_t \in \set{0,1}^{\min \set{\rnd{C}_t, K}}$ as a binary vector.
+      \FORALL{$k = 1, \dots, \min \set{\rnd{C}_t, K}$}
+        \STATE $\rnd{X}_t(k) \gets \I{\rnd{C}_t = k}$
+      \ENDFOR
+      \STATE $\rnd{\theta}_t \gets [\psi_{\rnd{a}^t_1:\rnd{a}^t_k} \psi_{\rnd{a}^t_1:\rnd{a}^t_k}^\top]^{-1} \psi_{\rnd{a}^t_1:\rnd{a}^t_k} \rnd{X}_t$
+      \STATE $\displaystyle \hat{\rnd{\theta}}_t \gets \frac{(t - 1) \hat{\rnd{\theta}}_{t - 1} + \rnd{\theta}_t}{t}$
     \ENDFOR
   \end{algorithmic}
 \end{algorithm}
