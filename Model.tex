@@ -146,6 +146,35 @@ where
 \]
 Note that $\hat{\theta}_t$ can also be computed incrementally, based on the matrix inversion lemma. \todoc{Add details. Other computational considerations can be discussed later, i.e., $\hat{\theta}_t$ does need to be recomputed too frequently. See Yasin's thesis.}
 
+The justification of the above estimation procedure is as follows:
+For any given time step, $\one{C_t=1} = \rnd{w}_t(\rnd{a}^t_1)$.
+Thus,
+\begin{align*}
+\EE{ \one{C_t=1} | \rnd{a}^t }
+ =  \EE{ \rnd{w}_t(\rnd{a}^t_1) | \rnd{a}^t } 
+ = \bar{w}(\rnd{a}^t_1) = \psi(\rnd{a}^t_1)^\top \thetast\,.
+\end{align*}
+Similarly,
+\begin{align*}
+\EE{ \one{C_t=2} | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0 } 
+=  \EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0  }  
+\stackrel{\mathrm{\footnotesize (a)}}{=} 
+	  \EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{a}^t }  
+\stackrel{\mathrm{\footnotesize (b)}}{=} 
+	\bar{w}(\rnd{a}^t_2) = \psi(\rnd{a}^t_2)^\top \thetast\,.
+\end{align*}
+Here, (a) holds because $\rnd{w}_t(\rnd{a}_2^t)$ is independent of $\rnd{w}_t(\rnd{a}_1^t)$ \todoc{Huanrui: As an exercise, prove this formally and send me the proof, or include it in an appendix here.}
+(which holds because $\rnd{a}^t$ and $\rnd{w}_t$ are independent of each other 
+and because the components of $\rnd{w}_t$ are independent of each other), 
+hence we can drop the condition on $\rnd{w}_t(\rnd{a}_1^t)$ without changing the expectation.
+The equality marked as (b) holds because of our assumption that $\rnd{w}_t(e)$ is a Bernoulli with mean $\bar{w}(e)$ for any $e\in E$. Now, it should be clear that the same reasoning shows that for any $1\le k \le K$,
+\begin{align*}
+\EE{ \one{C_t=k} | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0, \dots,  \rnd{w}_t(\rnd{a}^t_{k-1} ) = 0 } 
+= \psi(\rnd{a}^t_k)^\top \thetast\,,
+\end{align*}
+showing that we can indeed view the data 
+$( (\psi(\rnd{a}^s_k), \one{C_s=k} ) )_{1\le s\le t, 1\le k \le K \wedge C_t }$ as being generated from a linear model.
+
 \begin{algorithm}[t]
   \caption{UCB-like algorithm for linear cascading bandits.}
   \label{alg:ucb}
@@ -186,3 +215,5 @@ $\norm{x}^2_Q  = x^\top Q x$ and
 and $\delta_t = \delta/(t(t+1))$ and $\delta>0$ is a parameter to be chosen later.
 \todoc{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.
 }
+
+
