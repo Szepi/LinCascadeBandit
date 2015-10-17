@@ -1,44 +1,40 @@
 %!TEX root = Paper.tex
 
-\section{Cascading Bandits}
+\section{Linear Cascading Bandits}
 \label{sec:cascading bandits}
 
-We propose a learning variant of the cascade model (\cref{sec:setting}) and two computationally-efficient algorithms for solving it (\cref{sec:algorithms}). To simplify exposition, all random variables are written in bold.
+For clarity of the exposition, all random variables are written in bold.
 
 
 \subsection{Setting}
 \label{sec:setting}
 
-We refer to our learning problem as a \emph{linear cascading bandit}. Formally, we represent the problem by a tuple $B = (E, \psi, \theta, K)$, where $E = \set{1, \dots, L}$ is a \emph{ground set} of $L$ items, $\psi : E \rightarrow \mathbb{R}^d$ is a mapping assigning features to each items, $\theta \in \mathbb{R}^d$ is an unknown parameter vector, and $K > 0$ is an integer representing the number of recommended items. 
+We refer to our learning problem as a \emph{linear cascading bandit}.
+A problem instance of linear cascading bandits is given
+by a tuple $B = (E, \psi, \thetast, K)$,
+where $E = \set{1, \dots, L}$ is a \emph{ground set} of $L$ items,
+$\psi : E \rightarrow \mathbb{R}^d$ is a mapping assigning features to each items,
+$\thetast \in \mathbb{R}^d$ is an unknown parameter vector,
+and $K > 0$ is an integer representing the number of items to be recommended.
+The features and the parameter vector define the mean attractiveness of the items, which must lie in the $[0,1]$ interval.
+For brevity, we also denote $\psi(e)^\top\thetast$ by $\bar{w}(e)$.
 
-The problem is generated from \emph{cascading bandit problem}, where a probability distribution $P$ is defined over a unit hypercube $\set{0, 1}^E$. Let $(\rnd{X}_t)_{t = 1}^n$ be an i.i.d. sequence of binary random \emph{weight} vectors of dimension $L$ drawn from $P$, where $\rnd{X}_t \in \set{0, 1}^E$ and $\rnd{X}_t(e)$ is the preference of the user for item $e$ at time $t$. That is, $\rnd{X}_t(e) = 1$ if and only if item $e$ attracts the user at time $t$. In the cascade model (\cref{sec:background}), the weights of the items in the ground set $E$ are distributed independently. We also make this assumption.
+The interaction between the learning agent and the environment is as follows:
+At time $t$, a user arrives at the web page. The user's preferences for the
+items is completely capture by the random binary vector $\rnd{w}_t\in \set{0,1}^E$, whose $e$th component is drawn from $\mathrm{Ber}( \bar{w}(e))$ independently of the other components and previous draws.
+The learning agent then recommends a list of $K$ items
+$\rnd{A}_t = (\rnd{a}^t_1, \dots, \rnd{a}^t_K) \in \Pi_K(E)$.
+The list is computed from the observations of the agent up to time $t$.
+The user examines the list,
+  from the first item $\rnd{a}^t_1$ to the last $\rnd{a}^t_K$,
+  and clicks on the first attractive item.
+If the user is not attracted by any item,
+  the user does not click on any item. Then time increases to $t + 1$.
 
-\begin{assumption}
-\label{ass:independence} The weights $X$ are distributed as:
+The reward of the agent at time $t$ can be written in several forms.
+For instance, as $\max_k \rnd{w}_t(\rnd{a}^t_k)$, at least one item in list $\rnd{A}_t$ is attractive; or as $f(\rnd{A}_t, \rnd{w}_t)$, where:
 \begin{align*}
-  P(X) = \prod_{e \in E} P_e(X(e))\,,
-\end{align*}
-where $P_e$ is a Bernoulli distribution with mean $\bar{X}(e)$.
-\end{assumption}
-
-Under this assumption, we define the problem as a \emph{cascading bandit}. From there, we add another assumption to get to our new \emph{linear cascading bandit} problem.
-
-\begin{assumption}
-\label{ass:probability} In this problem we have:
-\begin{align*}
-  \psi(e)^\top \theta \in [0,1] \,,
-\end{align*}
-for each $e \in E$, and the mean of weight distribution is defined as:
-\begin{align*}
-  \bar{X}(e) = \psi(e)^\top \theta \,,
-\end{align*}
-\end{assumption}
-
-The learning agent interacts with our problem as follows. At time $t$, the agent recommends a list of $K$ items $\rnd{A}_t = (\rnd{a}^t_1, \dots, \rnd{a}^t_K) \in \Pi_K(E)$. The list is computed from the observations of the agent up to time $t$. The user examines the list, from the first item $\rnd{a}^t_1$ to the last $\rnd{a}^t_K$, and clicks on the first attractive item. If the user is not attracted by any item, the user does not click on any item. Then time increases to $t + 1$.
-
-The reward of the agent at time $t$ can be written in several forms. For instance, as $\max_k \rnd{X}_t(\rnd{a}^t_k)$, at least one item in list $\rnd{A}_t$ is attractive; or as $f(\rnd{A}_t, \rnd{X}_t)$, where:
-\begin{align*}
-  f(A, X) = 1 - \prod_{k = 1}^K (1 - X(a_k))\,,
+  f(A, w) = 1 - \prod_{k = 1}^K (1 - w(a_k))\,,
 \end{align*}
 $A = (a_1, \dots, a_K) \in \Pi_K(E)$, and $w \in \set{0, 1}^E$. This later algebraic form is particularly useful in our proofs.
 
@@ -53,7 +49,7 @@ where we assume that $\argmin \emptyset = \infty$. The feedback $\rnd{C}_t$ is t
 \end{align}
 We say that item $e$ is \emph{observed} at time $t$ if $e = \rnd{a}^t_k$ for some $1 \leq k \leq \min \set{\rnd{C}_t, K}$.
 
-Under these settings, we refer to our learning problem as a \emph{cascading bandit}. In this new problem, the weight of any item at time $t$ is drawn independently of the weights of the other items at that, or any other, time. This assumption has profound consequences and leads to a particularly efficient learning algorithm in \cref{sec:algorithms}. More specifically, under our assumption, the expected reward for list $A \in \Pi_K(E)$, the probability that at least one item in $A$ is attractive, can be expressed as $\EE{f(A, \rnd{w})} = f(A, \bar{w})$, and depends only on the attraction probabilities of individual items in $A$.
+Recall that the weight of any item at time $t$ is drawn independently of the weights of the other items at that, or any other, time. This assumption has profound consequences. In particular, under this assumption, the expected reward for list $A \in \Pi_K(E)$, the probability that at least one item in $A$ is attractive, can be expressed as $\EE{f(A, \rnd{w})} = f(A, \bar{w})$, and depends only on the attraction probabilities of individual items in $A$.
 
 The agent's policy is evaluated by its \emph{expected cumulative regret}:
 \begin{align*}
@@ -65,11 +61,16 @@ where $R(\rnd{A}_t, \rnd{w}_t) = f(A^\ast, \rnd{w}_t) - f(\rnd{A}_t, \rnd{w}_t)$
 \end{align*}
 is the \emph{optimal list} of items, the list that maximized the reward at any time $t$. Since $f$ is invariant to the permutation of $A$, there exist at least $K!$ optimal lists. For simplicity of exposition, we assume that the optimal solution, as a set, is unique.
 
-
 \subsubsection{Previous work}
 \todoc[inline]{Here we should summarize here what is known, the previous algorithms. Include the previous results.}
 
-Recently, \citet{kveton15cascade} introduced two algorithms,  $\cascadeucb$ and $\cascadeklucb$
+The model differs from the cascading bandit model of \citet{kveton15cascade} only in the assumption that for all items $e\in E$, the item's mean attractiveness can be written as the linear combination of the item's features:
+$\bar{w}(e) = \psi(e)^\top \thetast$.
+Note that the choice $\psi_{e'}(e) = \one{e=e'}$ gives back the cascading bandit problem consider by \cite{kveton15cascade}, which we shall call the \emph{tabular} case.
+Thus, the new model is at least as general as the previous one.
+The motivation for the new model is to allow ``generalization'' across items and thus allow the learning agent to cope with problems when the number of items is possibly significantly larger than the number of timesteps.
+
+For the tabular cascading bandit setting \citet{kveton15cascade} introduced two algorithms,  $\cascadeucb$ and $\cascadeklucb$
 and proved upper bounds on their $n$-step regret.
 \todoc{Describe here briefly what the algorithms do.}
 Here, we state the main results of this work.
@@ -102,53 +103,48 @@ In this result, $\kl{a}{b}$ stands for the binary relative entropy, i.e., the Ku
   & \leq \sum_{e = K + 1}^L
   \frac{(1 + \eps) \Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))}{\kl{\bar{w}(e)}{\bar{w}(K)}} (\log n + 3 \log \log n) + C\,,
 \end{align*}
-where $C = K L \frac{C_2(\eps)}{n^{\beta(\eps)}} + 7 K \log \log n$, and the constants $C_2(\eps)$ and $\beta(\eps)$ are defined in \citet{garivier11klucb}. 
+where $C = K L \frac{C_2(\eps)}{n^{\beta(\eps)}} + 7 K \log \log n$, and the constants $C_2(\eps)$ and $\beta(\eps)$ are defined in \citet{garivier11klucb}.
 \end{theorem}
 \todoc[inline]{Derive a bound on the worst-case regret of $\cascadeklucb$ and include it here. How does it scale with $L$?}
 
-\subsection{Linear Cascading Bandits}
-As can be seen, the regret for both algorithms scales linearly with $L$, the number of items.
-\todoc{Prove it. Prove lower bound!}
-Oftentimes, the items come with features which may allow one to generalize across different items.
-In such a case we may hope to eliminate the dependence of the regret on $L$.
-This motivates our next assumption:
-\begin{assumption}[Linear mean weights]
-\label{ass:linear} 
-There exists a feature map, $\phi:E \to \Real^d$, known to the learner, such that 
-the mean weight $\bar{w}(e)$ satisfies
-\begin{align*}
-  \bar{w}(e) = \ip{\theta, \phi(e)}\,
-\end{align*}
-for all items $e\in E$, where $\theta_*\in \R^d$ is an unknown parameter vector
-and $\ip{\cdot,\cdot}$ denotes the inner product of its arguments. \todoc{Perhaps this should be moved to elsewhere.}
-\end{assumption}
-A Cascading Bandit Problem that also satisfies \cref{ass:linear} is called a ``Linear Cascading Bandit'' problem.
-
 \subsection{Algorithms}
 \label{sec:algorithms}
+As can be seen, the regret for both algorithms scales linearly with $L$, the number of items.
+\todoc{Prove it. Prove lower bound!}
 
-We propose two algorithms for solving cascading bandits, $\lincascadeucb$, building on $\cascadeucb$ of 
+We propose two algorithms for solving cascading bandits, $\lincascadeucb$, building on $\cascadeucb$ of
   \citet{kveton15cascade}, which itself builds on $\ucb$ of \cite{auer02finitetime}.
 
-\cref{alg:ucb} gives the pseudocode of $\lincascadeucb$. 
-The algorithm is identical to $\cascadeucb$ except that it estimates the 
+\cref{alg:ucb} gives the pseudocode of $\lincascadeucb$.
+The algorithm is identical to $\cascadeucb$ except that it estimates the
 \emph{upper confidence bound (UCB)} $\rnd{U}_t(e)$ on the attraction probability of item $e$ at time $t$
-in a way that exploits \cref{ass:linear}. In any case, given the estimates $\rnd{U}_t(e)$,
+in a way that exploits the linearity assumption.
+In any case, given the estimates $\rnd{U}_t(e)$,
 $\lincascadeucb$ recommends a list of $K$ items with largest UCBs:
 \begin{align}
   \rnd{A}_t = \argmax_{A \in \Pi_K(E)} f(A, \rnd{U}_t)\,.
 \end{align}
-Note that $\rnd{A}_t$ is determined only up to a permutation of the items in it. The payoff is not affected by this ordering. But the observations are. For now, we leave the order of items unspecified and return to it later in our discussions. After the user provides feedback $\rnd{C}_t$, the algorithms update the estimate of $\theta_*$ 
+Note that $\rnd{A}_t$ is determined only up to a permutation of the items in it. The payoff is not affected by this ordering. But the observations are. For now, we leave the order of items unspecified and return to it later in our discussions. After the user provides feedback $\rnd{C}_t$, the algorithms update the estimate of $\thetast$
 based on \eqref{eq:click}, for all $e = \rnd{a}^t_k$ where $k \leq \rnd{C}_t$.
 In particular, the estimate computed is
 \begin{align}
 \label{eq:ridge}
-\hat{\theta}_t = \argmin_{\theta\in \R^d}
-\lambda \norm{\theta}^2 + 
- \sum_{s=1}^t \sum_{k=1}^{\min(K,\rnd{C}_t)} ( \I{\rnd{C}_t = k} - \ip{\theta,\phi(\rnd{a}^t_k)})^2 \,,
+\hat{\rnd{\theta}}_t = \argmin_{\theta\in \R^d}
+\lambda \norm{\theta}^2 +
+ \sum_{s=1}^{t-1} \sum_{k=1}^{\min(K,\rnd{C}_t)} ( \I{\rnd{C}_t = k} - \ip{\theta,\psi(\rnd{a}^t_k)})^2 \,,
 \end{align}
 where $\lambda>0$ is a tuning parameter and $\norm{\cdot}$ denotes the $2$-norm.
-Note that $\hat{\theta}_t$ can be updated incrementally. \todoc{Add details. Other computational considerations can be discussed later, i.e., $\hat{\theta}_t$ does need to be recomputed too frequently. See Yasin's thesis.}
+Note that $\hat{\theta}_t$ satisfies
+\begin{align*}
+  \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_t}
+  \one{C_t=k} \psi(\rnd{a}^t_k)\,,
+\end{align*}
+where
+\[
+\bar{V}_t = \lambda I + \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_t}
+\psi(\rnd{a}^t_k) \psi(\rnd{a}^t_k)^\top\,.
+\]
+Note that $\hat{\theta}_t$ can also be computed incrementally, based on the matrix inversion lemma. \todoc{Add details. Other computational considerations can be discussed later, i.e., $\hat{\theta}_t$ does need to be recomputed too frequently. See Yasin's thesis.}
 
 \begin{algorithm}[t]
   \caption{UCB-like algorithm for linear cascading bandits.}
@@ -180,8 +176,13 @@ Note that $\hat{\theta}_t$ can be updated incrementally. \todoc{Add details. Oth
 
 The UCBs are computed as follows. In $\cascadeucb$, the UCB on the attraction probability of item $e$ at time $t$ is:
 \begin{align*}
-  \rnd{U}_t(e) = \ip{\hat{\rnd{\theta}}_t,\phi(e)} + \dots\,.
+  \rnd{U}_t(e) = \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\,,
 \end{align*}
+where $\norm{\cdot}_Q$ for $Q$ positive definite is defined by
+$\norm{x}^2_Q  = x^\top Q x$ and
+\[
+\beta_t = \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t/\lambda)}{\delta_t}\right)} + \lambda^{1/2} S\,,
+\]
+and $\delta_t = \delta/(t(t+1))$ and $\delta>0$ is a parameter to be chosen later.
 \todoc{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.
 }
-

@@ -47,12 +47,12 @@
 %\newtheorem{theorem}{Theorem}
 %\newtheorem{corollary}{Corollary}[theorem]
 %\newtheorem{lemma}[theorem]{Lemma}
-\usepackage[amsmath,standard,thmmarks]{ntheorem} % ntheorem makes cleveref work properly 
+\usepackage[amsmath,standard,thmmarks]{ntheorem} % ntheorem makes cleveref work properly
 
 % Hyperlinks make it very easy to navigate an electronic document.
 % In addition, this is where you should specify the thesis title
 % and author as they appear in the properties of the PDF document.
-% Use the "hyperref" package 
+% Use the "hyperref" package
 % N.B. HYPERREF MUST BE THE SECOND TO LAST PACKAGE LOADED; ADD ADDITIONAL PKGS ABOVE
 \usepackage[pdftex,letterpaper=true,pagebackref=false]{hyperref} % with basic options
 		% N.B. pagebackref=true provides links back from the References to the body text. This can cause trouble for printing.
@@ -196,6 +196,7 @@
 \newcommand{\EEt}[1]{\mathbb{E}_t \left[#1\right]}
 \newcommand{\floors}[1]{\left\lfloor#1\right\rfloor}
 \newcommand{\I}[1]{\mathds{1} \! \left\{#1\right\}}
+\newcommand{\one}[1]{\mathds{1} \! \left\{#1\right\}}
 \newcommand{\inner}[2]{\langle#1, #2\rangle}
 \newcommand{\kl}[2]{D_\mathrm{KL}(#1 \,\|\, #2)}
 \newcommand{\klplus}[2]{D_\mathrm{KL}^+(#1 \,\|\, #2)}
@@ -214,6 +215,7 @@
 \newcommand{\transpose}{^\mathsf{\scriptscriptstyle T}}
 \newcommand{\ud}{\, \mathrm{d}}
 \newcommand{\var}[2]{\mathrm{Var}_{#1} \! \left[#2\right]}
+\newcommand{\thetast}{\theta_*}
 
 \DeclareMathOperator*{\argmax}{arg\,max\,}
 \DeclareMathOperator*{\argmin}{arg\,min\,}
@@ -234,14 +236,14 @@
 \maketitle
 
 \begin{abstract}
-A search engine usually outputs a list of $K$ web pages, or items. 
-The user examines this list, from the first web page to the last, and chooses 
-the first attractive page if any of the pages presented is attractive. 
-This model of user behavior is known as the cascade model. 
-In a previous paper the online learning variant of this model, called cascading bandits, was studied, where 
+A search engine usually outputs a list of $K$ web pages, or items.
+The user examines this list, from the first web page to the last, and chooses
+the first attractive page if any of the pages presented is attractive.
+This model of user behavior is known as the cascade model.
+In a previous paper the online learning variant of this model, called cascading bandits, was studied, where
 the goal is to maximize the total number of clicks while learning about the expected attractiveness of the items.
 The state-of-the-art method for this problem learns individual attractiveness of the items, which makes it scale
-poorly with the number of items. 
+poorly with the number of items.
 In this paper we assume that the individual items are characterized by a finite dimensional feature vector and the inner
 product of their feature vector with an unknown parameter vector gives the items expected attractiveness.
 We show that in this case the scaling with the number of items can be replaced with scaling with the number of features,
