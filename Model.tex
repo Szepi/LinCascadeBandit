@@ -131,9 +131,9 @@ In particular, the estimate computed is
 \label{eq:ridge}
 \hat{\rnd{\theta}}_t = \argmin_{\theta\in \R^d}
 \lambda \norm{\theta}^2 +
- \sum_{s=1}^{t-1} \sum_{k=1}^{\min(K,\rnd{C}_t)} ( \I{\rnd{C}_t = k} - \ip{\theta,\psi(\rnd{a}^t_k)})^2 \,,
+ \sum_{s=1}^{t-1} \sum_{k=1}^{K\wedge \rnd{C}_t} ( \I{\rnd{C}_t = k} - \ip{\theta,\psi(\rnd{a}^t_k)})^2 \,,
 \end{align}
-where $\lambda>0$ is a tuning parameter and $\norm{\cdot}$ denotes the $2$-norm.
+where $a\wedge b \doteq \min(a,b)$, $\lambda>0$ is a tuning parameter and $\norm{\cdot}$ denotes the $2$-norm.
 Note that $\hat{\theta}_t$ satisfies
 \begin{align*}
   \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_t}
