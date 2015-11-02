@@ -112,7 +112,11 @@ In this result, $\kl{a}{b}$ stands for the binary relative entropy, i.e., the Ku
 \end{align*}
 where $C = K L \frac{C_2(\eps)}{n^{\beta(\eps)}} + 7 K \log \log n$, and the constants $C_2(\eps)$ and $\beta(\eps)$ are defined in \citet{garivier11klucb}.
 \end{theorem}
-\todoc[inline]{Derive a bound on the worst-case regret of $\cascadeklucb$ and include it here. How does it scale with $L$?}
+%todoc[inline]{Derive a bound on the worst-case regret of $\cascadeklucb$ and include it here. How does it scale with $L$?}
+
+As we can see here, for $\frac{(1 + \eps) \Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))}{\kl{\bar{w}(e)}{\bar{w}(K)}} (\log n + 3 \log \log n)$, 
+the numerator is less than $1 + \eps$ since $\Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))$ is less than 1 when $\Delta_{e, K}$ lies between 0 and 1,
+while the denominator is always positive when $e > K$, and $\log n + 3 \log \log n$ is constant when $n$ is fixed. Therefore, this fraction can be bounded by a finite constant number, and the summation scales linearly with $L$. Also, $C$ is linear with $L$ as its definition. Add these up we can say the worst-case regret of $\cascadeklucb$ scales linearly with $L$
 
 \subsection{Algorithms}
 \label{sec:algorithms}
