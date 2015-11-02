@@ -92,7 +92,14 @@ The first main result of  \citet{kveton15cascade} is a bound on the regret of $\
   \sum_{e = K + 1}^L \frac{12}{\Delta_{e, K}} \log n + \frac{\pi^2}{3} L\,.
 \end{align*}
 \end{theorem}
-\todoc[inline]{Derive a bound on the worst-case regret of $\cascadeucb$ and include it here. How does it scale with $L$?}
+%todoc[inline]{Derive a bound on the worst-case regret of $\cascadeucb$ and include it here. How does it scale with $L$?}
+
+As being assumed before, the items in the ground set are sorted in decreasing order of their attraction probabilities, $\bar{w}(1) \geq \ldots \geq \bar{w}(L)$. In this setting, for $K < e \leq L$, $\Delta_{e,K} \geq \Delta_{K+1,K}$. The worst case of expected $n$-step regret is bounded by:
+\begin{align*}
+ R(n) \leq \sum_{e = K + 1}^L \frac{12}{\Delta_{K+1, K}} \log n + \frac{\pi^2}{3} L 
+ = (\frac{12}{\Delta_{K+1, K}} \log n + \frac{\pi^2}{3}) L - (\frac{12}{\Delta_{K+1, K}} \log n)(K+1) ,
+\end{align*}
+which scales linearly with $L$.
 
 \citet{kveton15cascade}  also provided a result, proving a bound on the regret of $\cascadeklucb$, which we include next.
 In this result, $\kl{a}{b}$ stands for the binary relative entropy, i.e., the Kullback Leibler (KL) divergence between the Bernoulli random variables with respective parameters $0\le a,b\le 1$.
