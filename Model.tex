@@ -186,33 +186,33 @@ The equality marked as (b) holds because of our assumption that $\rnd{w}_t(e)$ i
 showing that we can indeed view the data 
 $( (\psi(\rnd{a}^s_k), \one{C_s=k} ) )_{1\le s\le t, 1\le k \le K \wedge C_t }$ as being generated from a linear model.
 
-\begin{algorithm}[t]
-  \caption{UCB-like algorithm for linear cascading bandits.}
-  \label{alg:ucb}
-  \begin{algorithmic}
-    \STATE // Initialization
-    \STATE Observe $\rnd{X}_0 \sim P$
-    \STATE $\rnd{\theta}_0 \gets [\psi_{1:L} \psi_{1:L}^\top]^{-1} \psi_{1:L} \rnd{X}_0$
-    \STATE $\hat{\rnd{\theta}}_1 \gets \rnd{\theta}_0$
-    \STATE
-    \FORALL{$t = 1, \dots, n$}
-      \STATE Compute UCBs $\rnd{U}_t(e)$ %%(\cref{sec:algorithms})
-      \STATE
-      \STATE // Recommend a list of $K$ items and get feedback
-      \STATE Let $\rnd{a}^t_1, \dots, \rnd{a}^t_K$ be $K$ items with largest UCBs
-      \STATE $\rnd{A}_t \gets (\rnd{a}^t_1, \dots, \rnd{a}^t_K)$
-      \STATE Observe click $\rnd{C}_t \in \set{1, \dots, K, \infty}$
-      \STATE
-      \STATE // Update statistics
-      \STATE Define $\rnd{X}_t \in \set{0,1}^{\min \set{\rnd{C}_t, K}}$ as a binary vector.
-      \FORALL{$k = 1, \dots, \min \set{\rnd{C}_t, K}$}
-        \STATE $\rnd{X}_t(k) \gets \I{\rnd{C}_t = k}$
-      \ENDFOR
-      \STATE $\rnd{\theta}_t \gets [\psi_{\rnd{a}^t_1:\rnd{a}^t_k} \psi_{\rnd{a}^t_1:\rnd{a}^t_k}^\top]^{-1} \psi_{\rnd{a}^t_1:\rnd{a}^t_k} \rnd{X}_t$
-      \STATE $\displaystyle \hat{\rnd{\theta}}_t \gets \frac{(t - 1) \hat{\rnd{\theta}}_{t - 1} + \rnd{\theta}_t}{t}$
-    \ENDFOR
-  \end{algorithmic}
-\end{algorithm}
+%\begin{algorithm}[t]
+%  \caption{UCB-like algorithm for linear cascading bandits.}
+%  \label{alg:ucb}
+%  \begin{algorithmic}
+%    \STATE // Initialization
+%    \STATE Observe $\rnd{X}_0 \sim P$
+%    \STATE $\rnd{\theta}_0 \gets [\psi_{1:L} \psi_{1:L}^\top]^{-1} \psi_{1:L} \rnd{X}_0$
+%    \STATE $\hat{\rnd{\theta}}_1 \gets \rnd{\theta}_0$
+%    \STATE
+%    \FORALL{$t = 1, \dots, n$}
+%      \STATE Compute UCBs $\rnd{U}_t(e)$ %%(\cref{sec:algorithms})
+%      \STATE
+%      \STATE // Recommend a list of $K$ items and get feedback
+%      \STATE Let $\rnd{a}^t_1, \dots, \rnd{a}^t_K$ be $K$ items with largest UCBs
+%      \STATE $\rnd{A}_t \gets (\rnd{a}^t_1, \dots, \rnd{a}^t_K)$
+%      \STATE Observe click $\rnd{C}_t \in \set{1, \dots, K, \infty}$
+%      \STATE
+%      \STATE // Update statistics
+%      \STATE Define $\rnd{X}_t \in \set{0,1}^{\min \set{\rnd{C}_t, K}}$ as a binary vector.
+%      \FORALL{$k = 1, \dots, \min \set{\rnd{C}_t, K}$}
+%        \STATE $\rnd{X}_t(k) \gets \I{\rnd{C}_t = k}$
+%      \ENDFOR
+%      \STATE $\rnd{\theta}_t \gets [\psi_{\rnd{a}^t_1:\rnd{a}^t_k} \psi_{\rnd{a}^t_1:\rnd{a}^t_k}^\top]^{-1} \psi_{\rnd{a}^t_1:\rnd{a}^t_k} \rnd{X}_t$
+%      \STATE $\displaystyle \hat{\rnd{\theta}}_t \gets \frac{(t - 1) \hat{\rnd{\theta}}_{t - 1} + \rnd{\theta}_t}{t}$
+%    \ENDFOR
+%  \end{algorithmic}
+%\end{algorithm}
 
 The UCBs are computed as follows. In $\cascadeucb$, the UCB on the attraction probability of item $e$ at time $t$ is:
 \begin{align*}
@@ -224,7 +224,71 @@ $\norm{x}^2_Q  = x^\top Q x$ and
 \beta_t = \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t/\lambda)}{\delta_t}\right)} + \lambda^{1/2} S\,,
 \]
 and $\delta_t = \delta/(t(t+1))$ and $\delta>0$ is a parameter to be chosen later.
-\todoc{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.
-}
+\subsection{Confidence interval}
+%todo{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.}
+As we mentioned in former section, we computed $\hat{\theta}_t$ as follow:
+
+\begin{align*}
+  \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_s}
+  \I{C_s=k} \psi(\rnd{a}^s_k)\,,
+\end{align*}
+where
+\[
+\bar{V}_t = \lambda I + \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_s}
+\psi(\rnd{a}^s_k) \psi(\rnd{a}^s_k)^\top\,.
+\]
+
+Using the definition of matrix multiplication, the formula above can be rewrite in a matrix form:
+\begin{align*}
+  \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} {X^s_{1 : K \wedge C_s}}^\top Y_s \,,
+\end{align*}
+\begin{align*}
+\bar{V}_t = \lambda I + \sum_{s=1}^{t-1} {X^s_{1 : K \wedge C_s}}^\top X^s_{1 : K \wedge C_s} \,.
+\end{align*}
+Where $X^s_{1 : K \wedge C_s}$ is the matrix whose rows are
+$\psi(\rnd{a}^s_1)^\top, \psi(\rnd{a}^s_2)^\top, \dots, \psi(\rnd{a}^s_{ K \wedge C_s})^\top \,$ and
+$Y_s = (\I{C_s=1}, \dots, \I{C_s= K \wedge C_s})^\top\,$
+To avoid clutter, let $X_s = X^s_{1 : K \wedge C_s}\,.$
+
+As we defined in our model, $\I{C_s=k}$ can be expressed in a form of a inner product plus a random noise.
+\begin{align*}
+  \I{C_s=k} = \psi(\rnd{a}^s_k)^\top \theta_* + \rnd{\eta}_k \,.
+\end{align*}
+Where $ \rnd{\eta}_s $ follows a two-valued distribution that
+has a probability of $\psi(\rnd{a}^s_k)^\top \theta_*$ to be $1 - \psi(\rnd{a}^s_k)^\top \theta_*$
+and has a probability of $1 - \psi(\rnd{a}^s_k)^\top \theta_*$ to be $-\psi(\rnd{a}^s_k)^\top \theta_*$.
+
+In this way, we can modify the expression of $Y_s$ :
+\begin{align*}
+  Y_s = X_s \theta_* + \rnd{\eta}_s \,,
+\end{align*}
+where
+\begin{align*}
+  \rnd{\eta}_s = (\rnd{\eta}_1, \dots, \rnd{\eta}_{K \wedge C_s})^\top \,,
+\end{align*}
+
+Under all these notifications and expressions above, we can exactly follow the steps used in the proof
+of theorem 2 in Yasin's paper. From there we can get the following expression:
+\begin{align*}
+  \abs{x^\top \hat{\rnd{\theta}}_t - x^\top \theta_*}
+  \leq \norm{x}_{\bar{V}_t^{-1}} (\sum_{s=1}^{t-1}{\norm{X_s^\top \rnd{\eta}_s}_{\bar{V}_t^{-1}}} + \lambda^{0.5} \norm{\theta_*}_2) \,.
+\end{align*}
+
+\emph{The mission now is to derive a bound of $\sum_{s=1}^{t-1}{\norm{X_s^\top \rnd{\eta}_s}_{\bar{V}_t^{-1}}}$
+following the proof of theorem 1 in Yasin's paper.}
+
+By theorem 1 in Yasin's paper, with $V_s = \lambda I + \sum_{i=1}^{t-1} X_i^\top X_i-X_s^{\top}X_s \,,$
+for any $\delta > 0$, with probability at least $1 - \delta$,
+ \begin{align*}
+  \forall t \geq 0, \sum_{s=1}^{t-1}{\norm{X_s^\top \rnd{\eta}_s}_{\bar{V}_t^{-1}}}
+  \leq R \sum_{s=1}^{t-1} \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t)^{1/2} \mathrm{det}(\bar{V}_t-X_s^{\top}X_s)^{-1/2} }{\delta}\right)}\,
+  = R \sum_{s=1}^{t-1} \sqrt{\log\left(\frac{\mathrm{det}(\bar{V}_t)}{\delta \mathrm{det}(\bar{V}_t-X_s^{\top}X_s)}\right)}\,.
+\end{align*}
+
+Than, by following the steps in Yasin's paper, we can get the bound from this point:
+\begin{align*}
+  \norm{\hat{\rnd{\theta}}_t - \theta_*}_{\bar{V}_t}
+  \leq R \sum_{s=1}^{t-1} \sqrt{\log\left(\frac{\mathrm{det}(\bar{V}_t)}{\delta \mathrm{det}(\bar{V}_t-X_s^{\top}X_s)}\right)} + \lambda^{1/2}S \,.
+\end{align*}
 
 
