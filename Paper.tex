@@ -229,6 +229,23 @@
 \newcommand{\rankedklucb}{{\tt RankedKL\mhyphen UCB}}
 \newcommand{\ucb}{{\tt UCB1}}
 
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\V}{\overline{V}}
+\newcommand{\X}{X_s}
+\newcommand{\Y}{Y_s}
+\newcommand{\ETA}{\eta_s}
+\newcommand{\ip}[2]{\left\langle #1, #2 \right\rangle}
+
+\newcommand{\keyboundappliedp}[1]{
+ R \sqrt{2 \log( \frac{\det (\bar{V}_{#1})^{1/2}\det(\lambda I)^{-1/2}}{\delta} )}
+}
+\newcommand{\keyboundapplied}{\keyboundappliedp{t}}
+
+\newcommand{\keyboundappliedworstp}[1]{
+ R \sqrt{d \log\left( \frac{1+\frac{#1 L}{\lambda}}{\delta} \right)}
+}
+\newcommand{\keyboundappliedworst}{\keyboundappliedworstp{t}}
+
 \title{Linear Cascading Bandits}
 \author{}
 
