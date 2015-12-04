@@ -224,10 +224,36 @@ $\norm{x}^2_Q  = x^\top Q x$ and
 \beta_t = \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t/\lambda)}{\delta_t}\right)} + \lambda^{1/2} S\,,
 \]
 and $\delta_t = \delta/(t(t+1))$ and $\delta>0$ is a parameter to be chosen later.
+
+
 \subsection{Confidence interval}
 %todo{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.}
-As we mentioned in former section, we computed $\hat{\theta}_t$ as follow:
 
+In Yasin's linear Stochastic Bandits paper, the Theorem of Self-Normalized Bound for Vector-Valued Martingales is stated as follow:
+\begin{theorem}[Self-Normalized Bound for Vector-Valued Martingales]
+\label{theorem:martingale-bound}
+Let $\{F_t\}_{t=0}^\infty$ be a filtration. Let $\{\eta_t\}_{t=1}^\infty$ be a real-valued stochastic process such that $\eta_t$
+is $F_t$-measurable and $\eta_t$ is conditionally $R$-sub-Gaussian for some $R \ge 0$ i.e.
+\begin{align*}
+\forall \lambda \in \RR , \EE{e^{\lambda \eta_t} | F_{t-1}} \le \exp( \frac{\lambda^2R^2}{2}) \; .
+\end{align*}
+Let $\{X_t\}_{t=1}^\infty$ be an $\mathbb{R}^d$-valued stochastic process such that $X_t$ is $F_{t-1}$-measurable.
+Assume that $V$ is a $d \times d$ positive definite matrix. For any $t \ge 0$, define
+\begin{align*}
+\bar{V}_t &= V + \sum_{s=1}^t X_s X_s^\top
+&
+S_t &= \sum_{s=1}^t \eta_s X_s \; .
+\end{align*}
+Then, for any $\delta > 0$, with probability at least $1-\delta$, for all $t \ge 0$,
+$$
+\norm{S_t}_{\bar{V}_t^{-1}}^2
+\le
+2 R^2 \log( \frac{\det (\bar{V}_t)^{1/2} \det(V)^{-1/2}}{\delta} ) \; .
+$$
+\end{theorem}
+
+
+Let $\hat{\theta}_t$ be the $\ell^2$-regularized least-squares estimate of $\theta_*$ with regularization parameter $\lambda > 0$
 \begin{align*}
   \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_s}
   \I{C_s=k} \psi(\rnd{a}^s_k)\,,
@@ -238,6 +264,11 @@ where
 \psi(\rnd{a}^s_k) \psi(\rnd{a}^s_k)^\top\,.
 \]
 
+Here, we define the following notations:
+$X^s_{1 : K \wedge C_s}$ is the matrix whose rows are
+$\psi(\rnd{a}^s_1)^\top, \psi(\rnd{a}^s_2)^\top, \dots, \psi(\rnd{a}^s_{ K \wedge C_s})^\top \,$ and
+$Y_s = (\I{C_s=1}, \dots, \I{C_s= K \wedge C_s})^\top\,$
+
 Using the definition of matrix multiplication, the formula above can be rewrite in a matrix form:
 \begin{align*}
   \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} {X^s_{1 : K \wedge C_s}}^\top Y_s \,,
@@ -245,20 +276,18 @@ Using the definition of matrix multiplication, the formula above can be rewrite 
 \begin{align*}
 \bar{V}_t = \lambda I + \sum_{s=1}^{t-1} {X^s_{1 : K \wedge C_s}}^\top X^s_{1 : K \wedge C_s} \,.
 \end{align*}
-Where $X^s_{1 : K \wedge C_s}$ is the matrix whose rows are
-$\psi(\rnd{a}^s_1)^\top, \psi(\rnd{a}^s_2)^\top, \dots, \psi(\rnd{a}^s_{ K \wedge C_s})^\top \,$ and
-$Y_s = (\I{C_s=1}, \dots, \I{C_s= K \wedge C_s})^\top\,$
+
 To avoid clutter, let $X_s = X^s_{1 : K \wedge C_s}\,.$
 
 As we defined in our model, $\I{C_s=k}$ can be expressed in a form of a inner product plus a random noise.
 \begin{align*}
   \I{C_s=k} = \psi(\rnd{a}^s_k)^\top \theta_* + \rnd{\eta}_k \,.
 \end{align*}
-Where $ \rnd{\eta}_s $ follows a two-valued distribution that
+Where $ \rnd{\eta}_s $ follows a Bernoulli distribution that
 has a probability of $\psi(\rnd{a}^s_k)^\top \theta_*$ to be $1 - \psi(\rnd{a}^s_k)^\top \theta_*$
 and has a probability of $1 - \psi(\rnd{a}^s_k)^\top \theta_*$ to be $-\psi(\rnd{a}^s_k)^\top \theta_*$.
 
-In this way, we can modify the expression of $Y_s$ :
+In this way, we can rewrite the expression of $Y_s$ :
 \begin{align*}
   Y_s = X_s \theta_* + \rnd{\eta}_s \,,
 \end{align*}
@@ -267,28 +296,99 @@ where
   \rnd{\eta}_s = (\rnd{\eta}_1, \dots, \rnd{\eta}_{K \wedge C_s})^\top \,,
 \end{align*}
 
-Under all these notifications and expressions above, we can exactly follow the steps used in the proof
-of theorem 2 in Yasin's paper. From there we can get the following expression:
+The following theorem shows that $\theta_*$ lies with high probability in an
+ellipsoid with center at $\hat{\theta}_t$.
+
+\begin{theorem}[Confidence Ellipsoid]
+\label{theorem:confidence-ellipsoid}
+Assume the same as in Theorem~\ref{theorem:martingale-bound}, let $V = I \lambda$, $\lambda > 0$, define
+$Y_s = X_s \theta_* + \rnd{\eta}_s$ and assume that $\|\theta_*\|_2 \le S$. Then, for any $\delta > 0$, with probability at least $1-\delta$,
+for all $t \ge 0$, $\theta_*$ lies in the set
+$$
+C_t = \{ \theta \in \RR^d ~:~ \norm{\hat{\theta}_t -  \theta}_{\bar{V}_{t}}
+$$
+
+$$
+\le \keyboundappliedp{t} + \lambda^{1/2}\, S \} \; .
+$$
+
+All confidence intervals hold for all time steps with probability $1-\delta$.
+
+\end{theorem}
+
+%follow the proof step by step here
+\begin{proof}
+We will need the following lemma, which is proved in Yasin's paper:
+
+\begin{lemma}[Determinant-Trace Inequality]
+\label{lemma:determinant-trace-inequality}
+Suppose $X_1, X_2, \dots, X_t \in \R^d$ and for any $1 \le s \le t$, $\|X_s\|_2 \le L$.
+Let $\V_t = \lambda I + \sum_{s=1}^t X_s X_s^\top$ for some $\lambda > 0$.
+Then,
+$$
+\det(\V_t) \le (\lambda + tL^2/d)^d \; .
+$$
+\end{lemma}
+
+As we mentioned before,
+\begin{align*}
+\hat{\theta}_t
+&= (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{[\X^\top (\X \theta_* + \ETA)]} \\
+&= (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} \\
+&+ (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} (\sum_{s=1}^{t-1}{\X^\top \X+\lambda I}) \theta_* - \lambda (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \\
+&= (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} + \theta_* - \lambda (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \; ,
+\end{align*}
+
+we get
+\begin{align*}
+x^\top \hat{\theta}_t - x^\top \theta_*
+&= x^\top (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} \\
+&- \lambda x^\top (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \\
+&= \ip{x}{\sum_{s=1}^{t-1}{\X^\top \ETA}}_{\V_t^{-1}} - \lambda \ip{x}{\theta_*}_{\V_t^{-1}},
+\end{align*}
+where $\V_t = \sum_{s=1}^{t-1}{\X^\top \X} + \lambda I $.
+Note that $\V_t$ is positive definite (thanks to $\lambda>0$) and hence so is $\V_t^{-1}$, so the above inner product is well-defined.
+Using the Cauchy-Schwarz inequality, we get
 \begin{align*}
   \abs{x^\top \hat{\rnd{\theta}}_t - x^\top \theta_*}
-  \leq \norm{x}_{\bar{V}_t^{-1}} (\sum_{s=1}^{t-1}{\norm{X_s^\top \rnd{\eta}_s}_{\bar{V}_t^{-1}}} + \lambda^{0.5} \norm{\theta_*}_2) \,.
+  &\leq \norm{x}_{\bar{V}_t^{-1}} (\norm{\sum_{s=1}^{t-1}{X_s^\top \rnd{\eta}_s}}_{\bar{V}_t^{-1}} + \lambda \norm{\theta_*}_{V_t^{-1}}) \\
+  &\leq \norm{x}_{\bar{V}_t^{-1}} (\norm{\sum_{s=1}^{t-1}{X_s^\top \rnd{\eta}_s}}_{\bar{V}_t^{-1}} + \lambda^{0.5} \norm{\theta_*}_2) \,.
 \end{align*}
+where we used that $\norm{\theta_*}_{\V_t^{-1}}^2 \le 1/\lambda_{\min}(\V_t) \norm{\theta_*}_2^2 \le 1/\lambda \norm{\theta_*}_2^2$.
 
-\emph{The mission now is to derive a bound of $\sum_{s=1}^{t-1}{\norm{X_s^\top \rnd{\eta}_s}_{\bar{V}_t^{-1}}}$
-following the proof of theorem 1 in Yasin's paper.}
-
-By theorem 1 in Yasin's paper, with $V_s = \lambda I + \sum_{i=1}^{t-1} X_i^\top X_i-X_s^{\top}X_s \,,$
-for any $\delta > 0$, with probability at least $1 - \delta$,
+By Theorem~\ref{theorem:martingale-bound} with $V=\lambda I$, for any $\delta > 0$, with probability at least $1-\delta$,
  \begin{align*}
-  \forall t \geq 0, \sum_{s=1}^{t-1}{\norm{X_s^\top \rnd{\eta}_s}_{\bar{V}_t^{-1}}}
-  \leq R \sum_{s=1}^{t-1} \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t)^{1/2} \mathrm{det}(\bar{V}_t-X_s^{\top}X_s)^{-1/2} }{\delta}\right)}\,
-  = R \sum_{s=1}^{t-1} \sqrt{\log\left(\frac{\mathrm{det}(\bar{V}_t)}{\delta \mathrm{det}(\bar{V}_t-X_s^{\top}X_s)}\right)}\,.
+  \forall t \geq 0, \norm{\sum_{s=1}^{t-1}{X_s^\top \rnd{\eta}_s}}_{\bar{V}_t^{-1}}
+  \end{align*}
+
+  \begin{align*}
+  \leq R \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t)^{1/2} \mathrm{det}(\lambda I)^{-1/2} }{\delta}\right)}\,
 \end{align*}
 
-Than, by following the steps in Yasin's paper, we can get the bound from this point:
+Therefore, on the event where this inequality holds, one also has
 \begin{align*}
-  \norm{\hat{\rnd{\theta}}_t - \theta_*}_{\bar{V}_t}
-  \leq R \sum_{s=1}^{t-1} \sqrt{\log\left(\frac{\mathrm{det}(\bar{V}_t)}{\delta \mathrm{det}(\bar{V}_t-X_s^{\top}X_s)}\right)} + \lambda^{1/2}S \,.
+  \forall t \ge 0, \forall x \in \R^d, \abs{x^\top \hat{\rnd{\theta}}_t - x^\top \theta_*}
+  \end{align*}
+
+  \begin{align*}
+  \leq \norm{x}_{\bar{V}_t^{-1}}(R \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t)^{1/2} \mathrm{det}(\lambda I)^{-1/2} }{\delta}\right)} + \lambda^{0.5} \norm{\theta_*}_2) \,
 \end{align*}
 
+Plugging in  $x = \V_{t}(\hat{\theta}_t - \theta_*)$ and using $\|\theta_*\|_2 \le S$, we get
+\begin{equation}
+\label{eq:cs1}
+\norm{\hat{\theta}_t -  \theta_*}_{\V_{t}}^2
+\le
+\norm{V_{t}(\hat{\theta}_t - \theta_*)}_{\V_{t}^{-1}} \left( \keyboundappliedp{t} + \lambda^{1/2}\, S\right).
+\end{equation}
+Now, $\norm{V_{t}(\hat{\theta}_t - \theta_*)}_{\V_{t}^{-1}} = \norm{\hat{\theta}_t -  \theta_*}_{\V_{t}}$ and therefore
+dividing both sides by $\norm{\hat{\theta}_t -  \theta_*}_{\V_{t}}$ gives
+$$
+\norm{\hat{\theta_t} -  \theta_*}_{\V_{t}} \le \keyboundappliedp{t} + \lambda^{1/2}\, S \; .
+$$
+In other words, $\theta_* \in C_t$.
+
+Since the whole process of the proof does not require any restriction on time step $t$, it can be stated that
+all confidence intervals hold for all time steps with probability $1-\delta$.
+\end{proof}
 
