@@ -11,13 +11,13 @@ For clarity of the exposition, all random variables are written in bold.
 
 We refer to our learning problem as a \emph{linear cascading bandit}.
 A problem instance of linear cascading bandits is given
-by a tuple $B = (E, \psi, \thetast, K)$,
+by a tuple $B = (E, \psi, \theta, K)$,
 where $E = \set{1, \dots, L}$ is a \emph{ground set} of $L$ items,
 $\psi : E \rightarrow \mathbb{R}^d$ is a mapping assigning features to each items,
-$\thetast \in \mathbb{R}^d$ is an unknown parameter vector,
+$\theta \in \mathbb{R}^d$ is an unknown parameter vector,
 and $K > 0$ is an integer representing the number of items to be recommended.
 The features and the parameter vector define the mean attractiveness of the items, which must lie in the $[0,1]$ interval.
-For brevity, we also denote $\psi(e)^\top\thetast$ by $\bar{w}(e)$.
+For brevity, we also denote $\psi(e)^\top\theta$ by $\bar{w}(e)$.
 
 The interaction between the learning agent and the environment is as follows:
 At time $t$, a user arrives at the web page. The user's preferences for the
@@ -62,17 +62,17 @@ where $R(\rnd{A}_t, \rnd{w}_t) = f(A^\ast, \rnd{w}_t) - f(\rnd{A}_t, \rnd{w}_t)$
 is the \emph{optimal list} of items, the list that maximized the reward at any time $t$. Since $f$ is invariant to the permutation of $A$, there exist at least $K!$ optimal lists. For simplicity of exposition, we assume that the optimal solution, as a set, is unique.
 
 \subsubsection{Previous work}
-\todoc[inline]{Here we should summarize here what is known, the previous algorithms. Include the previous results.}
+todoc[inline]{Here we should summarize here what is known, the previous algorithms. Include the previous results.}
 
 The model differs from the cascading bandit model of \citet{kveton15cascade} only in the assumption that for all items $e\in E$, the item's mean attractiveness can be written as the linear combination of the item's features:
-$\bar{w}(e) = \psi(e)^\top \thetast$.
-Note that the choice $\psi_{e'}(e) = \one{e=e'}$ gives back the cascading bandit problem consider by \cite{kveton15cascade}, which we shall call the \emph{tabular} case.
+$\bar{w}(e) = \psi(e)^\top \theta$.
+Note that the choice $\psi_{e'}(e) = \I{e=e'}$ gives back the cascading bandit problem consider by \cite{kveton15cascade}, which we shall call the \emph{tabular} case.
 Thus, the new model is at least as general as the previous one.
 The motivation for the new model is to allow ``generalization'' across items and thus allow the learning agent to cope with problems when the number of items is possibly significantly larger than the number of timesteps.
 
 For the tabular cascading bandit setting \citet{kveton15cascade} introduced two algorithms,  $\cascadeucb$ and $\cascadeklucb$
 and proved upper bounds on their $n$-step regret.
-\todoc{Describe here briefly what the algorithms do.}
+todoc{Describe here briefly what the algorithms do.}
 Here, we state the main results of this work.
 To state these results, we need some extra definitions.
 
@@ -94,12 +94,13 @@ The first main result of  \citet{kveton15cascade} is a bound on the regret of $\
 \end{theorem}
 %todoc[inline]{Derive a bound on the worst-case regret of $\cascadeucb$ and include it here. How does it scale with $L$?}
 
-As being assumed before, the items in the ground set are sorted in decreasing order of their attraction probabilities, $\bar{w}(1) \geq \ldots \geq \bar{w}(L)$. In this setting, for $K < e \leq L$, $\Delta_{e,K} \geq \Delta_{K+1,K}$. The worst case of expected $n$-step regret is bounded by:
+As being assumed in the cascading bandit paper, the items in the ground set are sorted in decreasing order of their attraction probabilities, $\bar{w}(1) \geq \ldots \geq \bar{w}(L)$. In this setting, for $K < e \leq L$, $\Delta_{e,K} \geq \Delta_{K+1,K}$. The worst case of expected $n$-step regret is bounded by:
 \begin{align*}
- R(n) \leq \sum_{e = K + 1}^L \frac{12}{\Delta_{K+1, K}} \log n + \frac{\pi^2}{3} L 
+ R(n) \leq \sum_{e = K + 1}^L \frac{12}{\Delta_{K+1, K}} \log n + \frac{\pi^2}{3} L
  = (\frac{12}{\Delta_{K+1, K}} \log n + \frac{\pi^2}{3}) L - (\frac{12}{\Delta_{K+1, K}} \log n)(K+1) ,
 \end{align*}
 which scales linearly with $L$.
+
 
 \citet{kveton15cascade}  also provided a result, proving a bound on the regret of $\cascadeklucb$, which we include next.
 In this result, $\kl{a}{b}$ stands for the binary relative entropy, i.e., the Kullback Leibler (KL) divergence between the Bernoulli random variables with respective parameters $0\le a,b\le 1$.
@@ -113,78 +114,95 @@ In this result, $\kl{a}{b}$ stands for the binary relative entropy, i.e., the Ku
 where $C = K L \frac{C_2(\eps)}{n^{\beta(\eps)}} + 7 K \log \log n$, and the constants $C_2(\eps)$ and $\beta(\eps)$ are defined in \citet{garivier11klucb}.
 \end{theorem}
 %todoc[inline]{Derive a bound on the worst-case regret of $\cascadeklucb$ and include it here. How does it scale with $L$?}
-
-As we can see here, for $\frac{(1 + \eps) \Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))}{\kl{\bar{w}(e)}{\bar{w}(K)}} (\log n + 3 \log \log n)$, 
+As we can see here, for $\frac{(1 + \eps) \Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))}{\kl{\bar{w}(e)}{\bar{w}(K)}} (\log n + 3 \log \log n)$,
 the numerator is less than $1 + \eps$ since $\Delta_{e, K} (1 + \log(1 / \Delta_{e, K}))$ is less than 1 when $\Delta_{e, K}$ lies between 0 and 1,
-while the denominator is always positive when $e > K$, and $\log n + 3 \log \log n$ is constant when $n$ is fixed. Therefore, this fraction can be bounded by a finite constant number, and the summation scales linearly with $L$. Also, $C$ is linear with $L$ as its definition. Add these up we can say the worst-case regret of $\cascadeklucb$ scales linearly with $L$
+while the denominator is always positive when $e > K$, and $\log n + 3 \log \log n$ is constant when $n$ is fixed. Therefore, this fraction can be bounded
+by a finite constant number, and the summation scales linearly with $L$. Also, $C$ is linear with $L$ as its definition. Add these up we can say
+the worst-case regret of $\cascadeklucb$ scales linearly with $L$
 
 \subsection{Algorithms}
 \label{sec:algorithms}
 As can be seen, the regret for both algorithms scales linearly with $L$, the number of items.
-\todoc{Prove it. Prove lower bound!}
+%todoc{Prove it. Prove lower bound!}
 
-We propose two algorithms for solving cascading bandits, $\lincascadeucb$, building on $\cascadeucb$ of
-  \citet{kveton15cascade}, which itself builds on $\ucb$ of \cite{auer02finitetime}.
+We propose two algorithms for solving cascading bandits, $lincascadeucb$, building on $cascadeucb$ of
+  \citet{kveton15cascade}, which itself builds on $ucb$ of \cite{auer02finitetime}.
 
-\cref{alg:ucb} gives the pseudocode of $\lincascadeucb$.
-The algorithm is identical to $\cascadeucb$ except that it estimates the
+\cref{alg:ucb} gives the pseudocode of $lincascadeucb$.
+The algorithm is identical to $cascadeucb$ except that it estimates the
 \emph{upper confidence bound (UCB)} $\rnd{U}_t(e)$ on the attraction probability of item $e$ at time $t$
 in a way that exploits the linearity assumption.
 In any case, given the estimates $\rnd{U}_t(e)$,
-$\lincascadeucb$ recommends a list of $K$ items with largest UCBs:
+$lincascadeucb$ recommends a list of $K$ items with largest UCBs:
 \begin{align}
   \rnd{A}_t = \argmax_{A \in \Pi_K(E)} f(A, \rnd{U}_t)\,.
 \end{align}
-Note that $\rnd{A}_t$ is determined only up to a permutation of the items in it. The payoff is not affected by this ordering. But the observations are. For now, we leave the order of items unspecified and return to it later in our discussions. After the user provides feedback $\rnd{C}_t$, the algorithms update the estimate of $\thetast$
+Note that $\rnd{A}_t$ is determined only up to a permutation of the items in it. The payoff is not affected by this ordering. But the observations are. For now, we leave the order of items unspecified and return to it later in our discussions. After the user provides feedback $\rnd{C}_t$, the algorithms update the estimate of $\theta$
 based on \eqref{eq:click}, for all $e = \rnd{a}^t_k$ where $k \leq \rnd{C}_t$.
 In particular, the estimate computed is
 \begin{align}
 \label{eq:ridge}
-\hat{\rnd{\theta}}_t = \argmin_{\theta\in \R^d}
+\hat{\rnd{\theta}}_t = \argmin_{\theta\in \mathbb{R}^d}
 \lambda \norm{\theta}^2 +
- \sum_{s=1}^{t-1} \sum_{k=1}^{K\wedge \rnd{C}_t} ( \I{\rnd{C}_t = k} - \ip{\theta,\psi(\rnd{a}^t_k)})^2 \,,
+ \sum_{s=1}^{t-1} \sum_{k=1}^{K\wedge \rnd{C}_t} ( \I{\rnd{C}_t = k} - (\theta,\psi(\rnd{a}^t_k)))^2 \,,
 \end{align}
 where $a\wedge b \doteq \min(a,b)$, $\lambda>0$ is a tuning parameter and $\norm{\cdot}$ denotes the $2$-norm.
 Note that $\hat{\theta}_t$ satisfies
 \begin{align*}
   \hat{\rnd{\theta}}_t = \bar{V}_t^{-1} \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_t}
-  \one{C_t=k} \psi(\rnd{a}^t_k)\,,
+  \I{C_t=k} \psi(\rnd{a}^t_k)\,,
 \end{align*}
 where
 \[
 \bar{V}_t = \lambda I + \sum_{s=1}^{t-1} \sum_{k=1}^{K \wedge C_t}
 \psi(\rnd{a}^t_k) \psi(\rnd{a}^t_k)^\top\,.
 \]
-Note that $\hat{\theta}_t$ can also be computed incrementally, based on the matrix inversion lemma. \todoc{Add details. Other computational considerations can be discussed later, i.e., $\hat{\theta}_t$ does need to be recomputed too frequently. See Yasin's thesis.}
+Note that $\hat{\theta}_t$ can also be computed incrementally, based on the matrix inversion lemma.
+
+todoc{Add details. Other computational considerations can be discussed later, i.e., $\hat{\theta}_t$ does need to be recomputed too frequently. See Yasin's thesis.}
 
 The justification of the above estimation procedure is as follows:
-For any given time step, $\one{C_t=1} = \rnd{w}_t(\rnd{a}^t_1)$.
+For any given time step, $\I{C_t=1} = \rnd{w}_t(\rnd{a}^t_1)$.
 Thus,
 \begin{align*}
-\EE{ \one{C_t=1} | \rnd{a}^t }
- =  \EE{ \rnd{w}_t(\rnd{a}^t_1) | \rnd{a}^t } 
- = \bar{w}(\rnd{a}^t_1) = \psi(\rnd{a}^t_1)^\top \thetast\,.
+\EE{ \I{C_t=1} | \rnd{a}^t }
+ =  \EE{ \rnd{w}_t(\rnd{a}^t_1) | \rnd{a}^t }
+ = \bar{w}(\rnd{a}^t_1) = \psi(\rnd{a}^t_1)^\top \theta\,.
 \end{align*}
 Similarly,
 \begin{align*}
-\EE{ \one{C_t=2} | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0 } 
-=  \EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0  }  
-\stackrel{\mathrm{\footnotesize (a)}}{=} 
-	  \EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{a}^t }  
-\stackrel{\mathrm{\footnotesize (b)}}{=} 
-	\bar{w}(\rnd{a}^t_2) = \psi(\rnd{a}^t_2)^\top \thetast\,.
+\EE{ \I{C_t=2} | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0 }
+=  \EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0  }
 \end{align*}
-Here, (a) holds because $\rnd{w}_t(\rnd{a}_2^t)$ is independent of $\rnd{w}_t(\rnd{a}_1^t)$ \todoc{Huanrui: As an exercise, prove this formally and send me the proof, or include it in an appendix here.}
-(which holds because $\rnd{a}^t$ and $\rnd{w}_t$ are independent of each other 
-and because the components of $\rnd{w}_t$ are independent of each other), 
+\begin{align*}
+\stackrel{\mathrm{\footnotesize (a)}}{=}
+	  \EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{a}^t }
+\stackrel{\mathrm{\footnotesize (b)}}{=}
+	\bar{w}(\rnd{a}^t_2) = \psi(\rnd{a}^t_2)^\top \theta\,.
+\end{align*}
+
+$\EE{ \rnd{w}_t(\rnd{a}^t_2) | \rnd{w}_t(\rnd{a}^t_1 ) = 1  } = 0$%\EE{ \rnd{w}_t(\rnd{a}^t_2)}$
+
+Here, (a) holds because $\rnd{w}_t(\rnd{a}_2^t)$ is independent of $\rnd{w}_t(\rnd{a}_1^t)$
+
+%todoc{Huanrui: As an exercise, prove this formally and send me the proof, or include it in an appendix here.}
+
+As the assumption we made before, the weights, $\rnd{w}_t$, are distributed independently. Therefore, the independence of $\rnd{w}_t(\rnd{a}_1^t)$ and $\rnd{w}_t(\rnd{a}_2^t)$ will hold if $\rnd{a}^t$ is independent with $\rnd{w}_t$.
+
+Let $\rnd{F}_{t-1}$ be the sigma algebra generated by $rnd{w}_s$ for $s = 1, \dots, t-1$. As $\rnd{a}^t$ can be computed via a deterministic function from the weights $\rnd{w}_1, \dots, \rnd{w}_{t-1}$, $\rnd{a}^t$ is $\rnd{F}_{t-1}$-measurable, $\EE{\rnd{w}_t | \rnd{a}^t , \rnd{F}_{t-1}} = \EE{\rnd{w}_t | \rnd{F}_{t-1}}$. As the assumption of the independence of sequence $(\rnd{w}_s)_s$ goes, it holds that $\rnd{w}_t$ is independent with $\rnd{F}_{t-1}$, therefore it holds that $\EE{\rnd{w}_t | \rnd{F}_{t-1}} = \EE{\rnd{w}_t}$.
+
+Using the tower-rule, $\EE{\rnd{w}_t | \rnd{a}^t}=\EE{\EE{\rnd{w}_t | \rnd{a}^t , \rnd{F}_{t-1}} | \rnd{a}^t}=\EE{\rnd{w}_t}$. As the definition of independence goes, we can say $\rnd{a}^t$ is independent with $\rnd{w}_t$, there holds the independence of $\rnd{w}_t(\rnd{a}_1^t)$ and $\rnd{w}_t(\rnd{a}_2^t)$.
+
+(which holds because $\rnd{a}^t$ and $\rnd{w}_t$ are independent of each other
+and because the components of $\rnd{w}_t$ are independent of each other),
 hence we can drop the condition on $\rnd{w}_t(\rnd{a}_1^t)$ without changing the expectation.
 The equality marked as (b) holds because of our assumption that $\rnd{w}_t(e)$ is a Bernoulli with mean $\bar{w}(e)$ for any $e\in E$. Now, it should be clear that the same reasoning shows that for any $1\le k \le K$,
 \begin{align*}
-\EE{ \one{C_t=k} | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0, \dots,  \rnd{w}_t(\rnd{a}^t_{k-1} ) = 0 } 
-= \psi(\rnd{a}^t_k)^\top \thetast\,,
+\EE{ \I{C_t=k} | \rnd{a}^t, \rnd{w}_t(\rnd{a}^t_1 ) = 0, \dots,  \rnd{w}_t(\rnd{a}^t_{k-1} ) = 0 }
+= \psi(\rnd{a}^t_k)^\top \theta\,,
 \end{align*}
-showing that we can indeed view the data 
-$( (\psi(\rnd{a}^s_k), \one{C_s=k} ) )_{1\le s\le t, 1\le k \le K \wedge C_t }$ as being generated from a linear model.
+showing that we can indeed view the data
+$( (\psi(\rnd{a}^s_k), \I{C_s=k} ) )_{1\le s\le t, 1\le k \le K \wedge C_t }$ as being generated from a linear model.
 
 %\begin{algorithm}[t]
 %  \caption{UCB-like algorithm for linear cascading bandits.}
@@ -213,7 +231,7 @@ $( (\psi(\rnd{a}^s_k), \one{C_s=k} ) )_{1\le s\le t, 1\le k \le K \wedge C_t }$ 
 %    \ENDFOR
 %  \end{algorithmic}
 %\end{algorithm}
-
+%
 The UCBs are computed as follows. In $\cascadeucb$, the UCB on the attraction probability of item $e$ at time $t$ is:
 \begin{align*}
   \rnd{U}_t(e) = \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\,,
@@ -225,7 +243,6 @@ $\norm{x}^2_Q  = x^\top Q x$ and
 \]
 and $\delta_t = \delta/(t(t+1))$ and $\delta>0$ is a parameter to be chosen later.
 
-
 \subsection{Confidence interval}
 %todo{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.}
 
@@ -235,7 +252,7 @@ In Yasin's linear Stochastic Bandits paper, the Theorem of Self-Normalized Bound
 Let $\{F_t\}_{t=0}^\infty$ be a filtration. Let $\{\eta_t\}_{t=1}^\infty$ be a real-valued stochastic process such that $\eta_t$
 is $F_t$-measurable and $\eta_t$ is conditionally $R$-sub-Gaussian for some $R \ge 0$ i.e.
 \begin{align*}
-\forall \lambda \in \RR , \EE{e^{\lambda \eta_t} | F_{t-1}} \le \exp( \frac{\lambda^2R^2}{2}) \; .
+\forall \lambda \in \R , \EE{e^{\lambda \eta_t} | F_{t-1}} \le \exp( \frac{\lambda^2R^2}{2}) \; .
 \end{align*}
 Let $\{X_t\}_{t=1}^\infty$ be an $\mathbb{R}^d$-valued stochastic process such that $X_t$ is $F_{t-1}$-measurable.
 Assume that $V$ is a $d \times d$ positive definite matrix. For any $t \ge 0$, define
@@ -305,7 +322,7 @@ Assume the same as in Theorem~\ref{theorem:martingale-bound}, let $V = I \lambda
 $Y_s = X_s \theta_* + \rnd{\eta}_s$ and assume that $\|\theta_*\|_2 \le S$. Then, for any $\delta > 0$, with probability at least $1-\delta$,
 for all $t \ge 0$, $\theta_*$ lies in the set
 $$
-C_t = \{ \theta \in \RR^d ~:~ \norm{\hat{\theta}_t -  \theta}_{\bar{V}_{t}}
+C_t = \{ \theta \in \R^d ~:~ \norm{\hat{\theta}_t -  \theta}_{\bar{V}_{t}}
 $$
 
 $$
@@ -344,7 +361,7 @@ we get
 x^\top \hat{\theta}_t - x^\top \theta_*
 &= x^\top (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} \\
 &- \lambda x^\top (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \\
-&= \ip{x}{\sum_{s=1}^{t-1}{\X^\top \ETA}}_{\V_t^{-1}} - \lambda \ip{x}{\theta_*}_{\V_t^{-1}},
+&= \ipp{x}{\sum_{s=1}^{t-1}{\X^\top \ETA}}_{\V_t^{-1}} - \lambda \ip{x}{\theta_*}_{\V_t^{-1}},
 \end{align*}
 where $\V_t = \sum_{s=1}^{t-1}{\X^\top \X} + \lambda I $.
 Note that $\V_t$ is positive definite (thanks to $\lambda>0$) and hence so is $\V_t^{-1}$, so the above inner product is well-defined.
@@ -391,4 +408,5 @@ In other words, $\theta_* \in C_t$.
 Since the whole process of the proof does not require any restriction on time step $t$, it can be stated that
 all confidence intervals hold for all time steps with probability $1-\delta$.
 \end{proof}
+
 
