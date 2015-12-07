@@ -232,18 +232,10 @@ $( (\psi(\rnd{a}^s_k), \I{C_s=k} ) )_{1\le s\le t, 1\le k \le K \wedge C_t }$ as
 %  \end{algorithmic}
 %\end{algorithm}
 %
-The UCBs are computed as follows. In $\cascadeucb$, the UCB on the attraction probability of item $e$ at time $t$ is:
-\begin{align*}
-  \rnd{U}_t(e) = \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\,,
-\end{align*}
-where $\norm{\cdot}_Q$ for $Q$ positive definite is defined by
-$\norm{x}^2_Q  = x^\top Q x$ and
-\[
-\beta_t = \keyboundappliedp{t} + \lambda^{1/2}\, S\,,
-\]
-$\delta>0$ is a parameter to be chosen later.
+The UCBs are computed based on Proposition~\ref{proposition:UCB} at the end of Section~\ref{sec:confidence-interval}.
 
 \subsection{Confidence interval}
+\label{sec:confidence-interval}
 %todo{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.}
 
 In Yasin's linear Stochastic Bandits paper, the Theorem of Self-Normalized Bound for Vector-Valued Martingales is stated as follow:
@@ -333,25 +325,6 @@ All confidence intervals hold for all time steps with probability $1-\delta$.
 
 \end{theorem}
 
-From the confidence interval we can calculate the UCB $\rnd{U}_t(e)$.
-To start with, we need a lemma about weighted inner product:
-\begin{lemma}[Weighted Inner Product]
-\label{lemma:Weighted-Inner-Product}
-Suppose $M$ is a $d \times d$ symmetric, positive definite matrix, then we have
-\begin{align*}
-  \forall x \in \R^d , \norm{M^{1/2} x}_2 = \norm{x}_M \; .
-\end{align*}
-\end{lemma}
-
-\begin{proof}[Proof of Lemma~\ref{lemma:Weighted-Inner-Product}]
-\begin{align*}
-\norm{M^{1/2} x}_2
-&= (x^\top {M^{1/2 \top}} M^{1/2} x)^{1/2}  \\
-&= (x^\top {M^{1/2}} M^{1/2} x)^{1/2} \\
-&= (x^\top M x)^{1/2} = \norm{x}_M .
-\end{align*}
-\end{proof}
-
 For the attraction probability, $\psi(e)^\top \rnd{\theta}_* = \psi(e)^\top \hat{\rnd{\theta}}_t + \psi(e)^\top (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)$, where
 \begin{align*}
 \psi(e)^\top (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)
@@ -361,7 +334,7 @@ For the attraction probability, $\psi(e)^\top \rnd{\theta}_* = \psi(e)^\top \hat
 &= \norm{{{\bar{V}_{t}}^{-1/2 \top}} \psi(e)}_2 \norm{{\bar{V}_{t}}^{1/2} (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_2 \\
 &= \norm{ \psi(e)}_{\bar{V}_{t}^{-1}} \norm{(\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_{\bar{V}_{t}} ,
 \end{align*}
-where we use the knowledge that $\bar{V}_{t}$ is a symmetric, positive definite matrix, and the result of Lemma~\ref{lemma:Weighted-Inner-Product}.
+where we use the knowledge that $\bar{V}_{t}$ is a symmetric, positive definite matrix, and the definition of weighted inner product. 
 
 Then, by using the result of Theorem~\ref{theorem:confidence-ellipsoid}, we get:
 for any $\delta > 0$, with probability at least $1-\delta$,
@@ -370,13 +343,23 @@ for any $\delta > 0$, with probability at least $1-\delta$,
  \norm{ \psi(e)}_{\bar{V}_{t}^{-1}} (\keyboundappliedp{t} + \lambda^{1/2}\, S) ,
 \end{align*}
 
-From the inequality above, we get that the attraction probability of item $e$ at time $t$ lies with high probability in the interval of 
+From the inequality above, we get that the attraction probability of item $e$ at time $t$ lies with probability at least $1-\delta$ in the interval of
 $[\psi(e)^\top \hat{\rnd{\theta}}_t - \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\, , \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}]$ where $\beta_t = \keyboundappliedp{t} + \lambda^{1/2}\, S\,.$
-From there we state that the UCB of attraction probability of item $e$ at time $t$ is:
+
+\begin{proposition}[UCB]
+\label{proposition:UCB}
+Considering the definition of UCB, the UCB on the attraction probability of item $e$ at time $t$ is:
 \begin{align*}
   \rnd{U}_t(e) = \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\,,
 \end{align*}
-which is exactly the form we stated at the end of Section~\ref{sec:algorithms}.
+where $\norm{\cdot}_Q$ for $Q$ positive definite is defined by
+$\norm{x}^2_Q  = x^\top Q x$ and
+\[
+\beta_t = \keyboundappliedp{t} + \lambda^{1/2}\, S\,,
+\]
+$\delta>0$ is a parameter to be chosen later.
+\end{proposition}
+
 
 %\begin{lemma}[Determinant-Trace Inequality]
 %\label{lemma:determinant-trace-inequality}
