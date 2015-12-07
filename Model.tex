@@ -370,8 +370,13 @@ for any $\delta > 0$, with probability at least $1-\delta$,
  \norm{ \psi(e)}_{\bar{V}_{t}^{-1}} (\keyboundappliedp{t} + \lambda^{1/2}\, S) ,
 \end{align*}
 
-Combining all these above, we can verify that the UCB $\rnd{U}_t(e)$ stated before is a valid UCB for this problem. 
-
+From the inequality above, we get that the attraction probability of item $e$ at time $t$ lies with high probability in the interval of 
+$[\psi(e)^\top \hat{\rnd{\theta}}_t - \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\, , \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}]$ where $\beta_t = \keyboundappliedp{t} + \lambda^{1/2}\, S\,.$
+From there we state that the UCB of attraction probability of item $e$ at time $t$ is:
+\begin{align*}
+  \rnd{U}_t(e) = \psi(e)^\top \hat{\rnd{\theta}}_t + \beta_t \norm{\psi(e) }_{\bar{V}_t^{-1}}\,,
+\end{align*}
+which is exactly the form we stated at the end of Section~\ref{sec:algorithms}.
 
 %\begin{lemma}[Determinant-Trace Inequality]
 %\label{lemma:determinant-trace-inequality}
