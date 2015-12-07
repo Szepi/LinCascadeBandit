@@ -239,9 +239,9 @@ The UCBs are computed as follows. In $\cascadeucb$, the UCB on the attraction pr
 where $\norm{\cdot}_Q$ for $Q$ positive definite is defined by
 $\norm{x}^2_Q  = x^\top Q x$ and
 \[
-\beta_t = \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t/\lambda)}{\delta_t}\right)} + \lambda^{1/2} S\,,
+\beta_t = \keyboundappliedp{t} + \lambda^{1/2}\, S\,,
 \]
-and $\delta_t = \delta/(t(t+1))$ and $\delta>0$ is a parameter to be chosen later.
+$\delta>0$ is a parameter to be chosen later.
 
 \subsection{Confidence interval}
 %todo{Compute confidence interval that contains the true value with probability $1-\delta$ based on Yasin's thesis.}
@@ -314,7 +314,7 @@ where
 \end{align*}
 
 The following theorem shows that $\theta_*$ lies with high probability in an
-ellipsoid with center at $\hat{\theta}_t$.
+ellipsoid with center at $\hat{\theta}_t$, the proof of it can be found in Yasin's paper.
 
 \begin{theorem}[Confidence Ellipsoid]
 \label{theorem:confidence-ellipsoid}
@@ -333,80 +333,56 @@ All confidence intervals hold for all time steps with probability $1-\delta$.
 
 \end{theorem}
 
-%follow the proof step by step here
-\begin{proof}
-We will need the following lemma, which is proved in Yasin's paper:
-
-\begin{lemma}[Determinant-Trace Inequality]
-\label{lemma:determinant-trace-inequality}
-Suppose $X_1, X_2, \dots, X_t \in \R^d$ and for any $1 \le s \le t$, $\|X_s\|_2 \le L$.
-Let $\V_t = \lambda I + \sum_{s=1}^t X_s X_s^\top$ for some $\lambda > 0$.
-Then,
-$$
-\det(\V_t) \le (\lambda + tL^2/d)^d \; .
-$$
+From the confidence interval we can calculate the UCB $\rnd{U}_t(e)$.
+To start with, we need a lemma about weighted inner product:
+\begin{lemma}[Weighted Inner Product]
+\label{lemma:Weighted-Inner-Product}
+Suppose $M$ is a $d \times d$ symmetric, positive definite matrix, then we have
+\begin{align*}
+  \forall x \in \R^d , \norm{M^{1/2} x}_2 = \norm{x}_M \; .
+\end{align*}
 \end{lemma}
 
-As we mentioned before,
+\begin{proof}[Proof of Lemma~\ref{lemma:Weighted-Inner-Product}]
 \begin{align*}
-\hat{\theta}_t
-&= (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{[\X^\top (\X \theta_* + \ETA)]} \\
-&= (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} \\
-&+ (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} (\sum_{s=1}^{t-1}{\X^\top \X+\lambda I}) \theta_* - \lambda (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \\
-&= (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} + \theta_* - \lambda (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \; ,
+\norm{M^{1/2} x}_2
+&= (x^\top {M^{1/2 \top}} M^{1/2} x)^{1/2}  \\
+&= (x^\top {M^{1/2}} M^{1/2} x)^{1/2} \\
+&= (x^\top M x)^{1/2} = \norm{x}_M .
 \end{align*}
-
-we get
-\begin{align*}
-x^\top \hat{\theta}_t - x^\top \theta_*
-&= x^\top (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1} \sum_{s=1}^{t-1}{\X^\top \ETA} \\
-&- \lambda x^\top (\sum_{s=1}^{t-1}{\X^\top \X} + \lambda I )^{-1}  \theta_* \\
-&= \ipp{x}{\sum_{s=1}^{t-1}{\X^\top \ETA}}_{\V_t^{-1}} - \lambda \ip{x}{\theta_*}_{\V_t^{-1}},
-\end{align*}
-where $\V_t = \sum_{s=1}^{t-1}{\X^\top \X} + \lambda I $.
-Note that $\V_t$ is positive definite (thanks to $\lambda>0$) and hence so is $\V_t^{-1}$, so the above inner product is well-defined.
-Using the Cauchy-Schwarz inequality, we get
-\begin{align*}
-  \abs{x^\top \hat{\rnd{\theta}}_t - x^\top \theta_*}
-  &\leq \norm{x}_{\bar{V}_t^{-1}} (\norm{\sum_{s=1}^{t-1}{X_s^\top \rnd{\eta}_s}}_{\bar{V}_t^{-1}} + \lambda \norm{\theta_*}_{V_t^{-1}}) \\
-  &\leq \norm{x}_{\bar{V}_t^{-1}} (\norm{\sum_{s=1}^{t-1}{X_s^\top \rnd{\eta}_s}}_{\bar{V}_t^{-1}} + \lambda^{0.5} \norm{\theta_*}_2) \,.
-\end{align*}
-where we used that $\norm{\theta_*}_{\V_t^{-1}}^2 \le 1/\lambda_{\min}(\V_t) \norm{\theta_*}_2^2 \le 1/\lambda \norm{\theta_*}_2^2$.
-
-By Theorem~\ref{theorem:martingale-bound} with $V=\lambda I$, for any $\delta > 0$, with probability at least $1-\delta$,
- \begin{align*}
-  \forall t \geq 0, \norm{\sum_{s=1}^{t-1}{X_s^\top \rnd{\eta}_s}}_{\bar{V}_t^{-1}}
-  \end{align*}
-
-  \begin{align*}
-  \leq R \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t)^{1/2} \mathrm{det}(\lambda I)^{-1/2} }{\delta}\right)}\,
-\end{align*}
-
-Therefore, on the event where this inequality holds, one also has
-\begin{align*}
-  \forall t \ge 0, \forall x \in \R^d, \abs{x^\top \hat{\rnd{\theta}}_t - x^\top \theta_*}
-  \end{align*}
-
-  \begin{align*}
-  \leq \norm{x}_{\bar{V}_t^{-1}}(R \sqrt{2 \log\left(\frac{\mathrm{det}(\bar{V}_t)^{1/2} \mathrm{det}(\lambda I)^{-1/2} }{\delta}\right)} + \lambda^{0.5} \norm{\theta_*}_2) \,
-\end{align*}
-
-Plugging in  $x = \V_{t}(\hat{\theta}_t - \theta_*)$ and using $\|\theta_*\|_2 \le S$, we get
-\begin{equation}
-\label{eq:cs1}
-\norm{\hat{\theta}_t -  \theta_*}_{\V_{t}}^2
-\le
-\norm{V_{t}(\hat{\theta}_t - \theta_*)}_{\V_{t}^{-1}} \left( \keyboundappliedp{t} + \lambda^{1/2}\, S\right).
-\end{equation}
-Now, $\norm{V_{t}(\hat{\theta}_t - \theta_*)}_{\V_{t}^{-1}} = \norm{\hat{\theta}_t -  \theta_*}_{\V_{t}}$ and therefore
-dividing both sides by $\norm{\hat{\theta}_t -  \theta_*}_{\V_{t}}$ gives
-$$
-\norm{\hat{\theta_t} -  \theta_*}_{\V_{t}} \le \keyboundappliedp{t} + \lambda^{1/2}\, S \; .
-$$
-In other words, $\theta_* \in C_t$.
-
-Since the whole process of the proof does not require any restriction on time step $t$, it can be stated that
-all confidence intervals hold for all time steps with probability $1-\delta$.
 \end{proof}
+
+For the attraction probability, $\psi(e)^\top \rnd{\theta}_* = \psi(e)^\top \hat{\rnd{\theta}}_t + \psi(e)^\top (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)$, where
+\begin{align*}
+\psi(e)^\top (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)
+&\le \norm{\psi(e)^\top (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_2  \\
+&= \norm{\psi(e)^\top {\bar{V}_{t}}^{-1/2} {\bar{V}_{t}}^{1/2} (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_2 \\
+&\le \norm{\psi(e)^\top {\bar{V}_{t}}^{-1/2}}_2 \norm{{\bar{V}_{t}}^{1/2} (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_2 \\
+&= \norm{{{\bar{V}_{t}}^{-1/2 \top}} \psi(e)}_2 \norm{{\bar{V}_{t}}^{1/2} (\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_2 \\
+&= \norm{ \psi(e)}_{\bar{V}_{t}^{-1}} \norm{(\rnd{\theta}_* - \hat{\rnd{\theta}}_t)}_{\bar{V}_{t}} ,
+\end{align*}
+where we use the knowledge that $\bar{V}_{t}$ is a symmetric, positive definite matrix, and the result of Lemma~\ref{lemma:Weighted-Inner-Product}.
+
+Then, by using the result of Theorem~\ref{theorem:confidence-ellipsoid}, we get:
+for any $\delta > 0$, with probability at least $1-\delta$,
+\begin{align*}
+\psi(e)^\top (\rnd{\theta}_* - \hat{\rnd{\theta}}_t) \le
+ \norm{ \psi(e)}_{\bar{V}_{t}^{-1}} (\keyboundappliedp{t} + \lambda^{1/2}\, S) ,
+\end{align*}
+
+Combining all these above, we can verify that the UCB $\rnd{U}_t(e)$ stated before is a valid UCB for this problem. 
+
+
+%\begin{lemma}[Determinant-Trace Inequality]
+%\label{lemma:determinant-trace-inequality}
+%Suppose $X_1, X_2, \dots, X_t \in \R^d$ and for any $1 \le s \le t$, $\|X_s\|_2 \le L$.
+%Let $\V_t = \lambda I + \sum_{s=1}^t X_s X_s^\top$ for some $\lambda > 0$.
+%Then,
+%$$
+%\det(\V_t) \le (\lambda + tL^2/d)^d \; .
+%$$
+%\end{lemma}
+
+
 
 
